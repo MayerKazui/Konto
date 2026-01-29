@@ -1,0 +1,98 @@
+{
+  "app": {
+    "title": "Konto",
+    "description": "Gestión de presupuesto simplificada"
+  },
+  "nav": {
+    "dashboard": "Panel de control",
+    "transactions": "Transacciones",
+    "forecast": "Previsiones",
+    "settings": "Ajustes"
+  },
+  "forecast": {
+    "title": "Previsiones Financieras",
+    "subtitle": "Proyección del saldo para los próximos 6 meses.",
+    "graphTitle": "Proyección de Flujo de Caja",
+    "emptyState": "No se encontraron transacciones recurrentes. Añada ingresos o facturas recurrentes para ver una previsión."
+  },
+  "dashboard": {
+    "title": "Panel de control",
+    "subtitle": "Resumen de su salud financiera.",
+    "totalBalance": "Saldo Total",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "investments": "Inversiones",
+    "noIncome": "Sin ingresos registrados",
+    "noExpense": "Sin gastos registrados",
+    "comingSoon": "Próximamente",
+    "vsLastMonth": "vs mes anterior"
+  },
+  "transactions": {
+    "title": "Transacciones",
+    "subtitle": "Gestione sus ingresos y gastos.",
+    "addTransaction": "Añadir",
+    "searchPlaceholder": "Buscar...",
+    "currentBalance": "Saldo Actual",
+    "forecastBalance": "Saldo Previsto",
+    "emptyState": "Sin transacciones. ¡Añada una para empezar!",
+    "recurring": "RECURRENTE",
+    "projected": "PREVISTO",
+    "delete": "Eliminar"
+  },
+  "form": {
+    "addTitle": "Añadir Transacción",
+    "expense": "Gasto",
+    "income": "Ingreso",
+    "amount": "Cantidad",
+    "date": "Fecha",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Alquiler, Comestibles, etc.",
+    "isRecurring": "Transacción Recurrente",
+    "frequency": "Frecuencia",
+    "frequencies": {
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "monthly": "Mensual",
+      "yearly": "Anual"
+    },
+    "duration": "Duración",
+    "durationInfinite": "Indefinido",
+    "durationDate": "Hasta...",
+    "durationOccurrences": "Por",
+    "times": "veces",
+    "submit": "Añadir"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "subtitle": "Gestione sus preferencias y datos.",
+    "language": "Idioma",
+    "appLanguage": "Idioma de la aplicación",
+    "languageSubtitle": "Elija el idioma de la interfaz.",
+    "budgetCycle": "Ciclo Presupuestario",
+    "resetDay": "Día de reinicio mensual",
+    "resetDaySubtitle": "Sus transacciones recientes y presupuesto se calcularán a partir de este día cada mes.",
+    "dayOfMonth": "El {{day}} del mes",
+    "appearance": "Apariencia",
+    "theme": "Tema",
+    "themeSubtitle": "Elija su tema preferido.",
+    "recurringRules": "Reglas Recurrentes",
+    "noRecurringRules": "No hay reglas recurrentes activas.",
+    "until": "Hasta",
+    "predictedOn": "Previsto el",
+    "deleteRuleConfirm": "¿Eliminar esta regla recurrente?",
+    "dataManagement": "Gestión de Datos",
+    "backupRestore": "Copia de Seguridad y Restauración",
+    "backupSubtitle": "Guarde sus datos o restaure desde una copia anterior.",
+    "export": "Exportar",
+    "import": "Importar",
+    "importConfirm": "¿Desea importar {{count}} transacciones y {{categories}} categorías? Esto reemplazará los datos actuales.",
+    "importSuccess": "¡Importación exitosa!",
+    "importError": "Error al importar: Archivo inválido.",
+    "appStats": "Estadísticas de la aplicación",
+    "statsDetail": "{{transactions}} Transacciones • {{categories}} Categorías • {{rules}} Reglas Recurrentes",
+    "dangerZone": "Zona de Peligro",
+    "dangerMessage": "Borrar datos eliminará todas sus transacciones, categorías personalizadas y configuraciones de este navegador.",
+    "clearAll": "Borrar Todo",
+    "clearConfirm": "¿Está seguro de querer borrar todos los datos? Esta acción es irreversible."
+  }
+}

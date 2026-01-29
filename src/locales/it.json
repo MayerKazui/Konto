@@ -1,0 +1,98 @@
+{
+  "app": {
+    "title": "Konto",
+    "description": "Gestione del budget semplificata"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Transazioni",
+    "forecast": "Previsioni",
+    "settings": "Impostazioni"
+  },
+  "forecast": {
+    "title": "Previsioni Finanziarie",
+    "subtitle": "Proiezione del saldo per i prossimi 6 mesi.",
+    "graphTitle": "Proiezione del Flusso di Cassa",
+    "emptyState": "Nessuna transazione ricorrente trovata. Aggiungi entrate o bollette ricorrenti per vedere una previsione."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Panoramica della tua salute finanziaria.",
+    "totalBalance": "Saldo Totale",
+    "income": "Entrate",
+    "expenses": "Uscite",
+    "investments": "Investimenti",
+    "noIncome": "Nessuna entrata registrata",
+    "noExpense": "Nessuna uscita registrata",
+    "comingSoon": "Prossimamente",
+    "vsLastMonth": "vs mese scorso"
+  },
+  "transactions": {
+    "title": "Transazioni",
+    "subtitle": "Gestisci le tue entrate e uscite.",
+    "addTransaction": "Aggiungi",
+    "searchPlaceholder": "Cerca...",
+    "currentBalance": "Saldo Attuale",
+    "forecastBalance": "Saldo Previsto",
+    "emptyState": "Nessuna transazione. Aggiungine una per iniziare!",
+    "recurring": "RICORRENTE",
+    "projected": "PREVISTO",
+    "delete": "Elimina"
+  },
+  "form": {
+    "addTitle": "Aggiungi Transazione",
+    "expense": "Uscita",
+    "income": "Entrata",
+    "amount": "Importo",
+    "date": "Data",
+    "description": "Descrizione",
+    "descriptionPlaceholder": "Affitto, Spesa, ecc.",
+    "isRecurring": "Transazione Ricorrente",
+    "frequency": "Frequenza",
+    "frequencies": {
+      "daily": "Quotidiano",
+      "weekly": "Settimanale",
+      "monthly": "Mensile",
+      "yearly": "Annuale"
+    },
+    "duration": "Durata",
+    "durationInfinite": "Indefinito",
+    "durationDate": "Fino al...",
+    "durationOccurrences": "Per",
+    "times": "volte",
+    "submit": "Aggiungi"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "subtitle": "Gestisci le tue preferenze e i dati.",
+    "language": "Lingua",
+    "appLanguage": "Lingua dell'applicazione",
+    "languageSubtitle": "Scegli la lingua dell'interfaccia.",
+    "budgetCycle": "Ciclo di Budget",
+    "resetDay": "Giorno di reset mensile",
+    "resetDaySubtitle": "Le tue transazioni recenti e il budget saranno calcolati da questo giorno ogni mese.",
+    "dayOfMonth": "Il {{day}} del mese",
+    "appearance": "Aspetto",
+    "theme": "Tema",
+    "themeSubtitle": "Scegli il tuo tema preferito.",
+    "recurringRules": "Regole Ricorrenti",
+    "noRecurringRules": "Nessuna regola ricorrente attiva.",
+    "until": "Fino al",
+    "predictedOn": "Previsto il",
+    "deleteRuleConfirm": "Eliminare questa regola ricorrente?",
+    "dataManagement": "Gestione Dati",
+    "backupRestore": "Backup e Ripristino",
+    "backupSubtitle": "Salva i tuoi dati o ripristina da un backup precedente.",
+    "export": "Esporta",
+    "import": "Importa",
+    "importConfirm": "Vuoi importare {{count}} transazioni e {{categories}} categorie? Questo sostituirà i dati attuali.",
+    "importSuccess": "Importazione riuscita!",
+    "importError": "Errore durante l'importazione: File non valido.",
+    "appStats": "Statistiche Applicazione",
+    "statsDetail": "{{transactions}} Transazioni • {{categories}} Categorie • {{rules}} Regole Ricorrenti",
+    "dangerZone": "Zona Pericolo",
+    "dangerMessage": "Cancellare i dati rimuoverà tutte le tue transazioni, categorie personalizzate e impostazioni da questo browser.",
+    "clearAll": "Cancella Tutto",
+    "clearConfirm": "Sei sicuro di voler cancellare tutti i dati? Questa azione è irreversibile."
+  }
+}

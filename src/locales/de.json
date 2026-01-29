@@ -1,0 +1,98 @@
+{
+  "app": {
+    "title": "Konto",
+    "description": "Vereinfachtes Budgetmanagement"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Transaktionen",
+    "forecast": "Prognose",
+    "settings": "Einstellungen"
+  },
+  "forecast": {
+    "title": "Finanzprognose",
+    "subtitle": "Kontostandsprognose für die nächsten 6 Monate.",
+    "graphTitle": "Cashflow-Prognose",
+    "emptyState": "Keine wiederkehrenden Transaktionen gefunden. Fügen Sie wiederkehrende Einnahmen oder Rechnungen hinzu, um eine Prognose zu sehen."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Überblick über Ihre finanzielle Gesundheit.",
+    "totalBalance": "Gesamtsaldo",
+    "income": "Einnahmen",
+    "expenses": "Ausgaben",
+    "investments": "Investitionen",
+    "noIncome": "Keine Einnahmen erfasst",
+    "noExpense": "Keine Ausgaben erfasst",
+    "comingSoon": "Demnächst",
+    "vsLastMonth": "vs Vormonat"
+  },
+  "transactions": {
+    "title": "Transaktionen",
+    "subtitle": "Verwalten Sie Ihre Einnahmen und Ausgaben.",
+    "addTransaction": "Hinzufügen",
+    "searchPlaceholder": "Suchen...",
+    "currentBalance": "Aktueller Saldo",
+    "forecastBalance": "Prognostizierter Saldo",
+    "emptyState": "Keine Transaktionen. Fügen Sie eine hinzu, um zu beginnen!",
+    "recurring": "WIEDERKEHREND",
+    "projected": "GEPLANT",
+    "delete": "Löschen"
+  },
+  "form": {
+    "addTitle": "Transaktion hinzufügen",
+    "expense": "Ausgabe",
+    "income": "Einnahme",
+    "amount": "Betrag",
+    "date": "Datum",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Miete, Lebensmittel, etc.",
+    "isRecurring": "Wiederkehrende Transaktion",
+    "frequency": "Häufigkeit",
+    "frequencies": {
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "monthly": "Monatlich",
+      "yearly": "Jährlich"
+    },
+    "duration": "Dauer",
+    "durationInfinite": "Unbegrenzt",
+    "durationDate": "Bis...",
+    "durationOccurrences": "Für",
+    "times": "Mal",
+    "submit": "Hinzufügen"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Verwalten Sie Ihre Einstellungen und Daten.",
+    "language": "Sprache",
+    "appLanguage": "App-Sprache",
+    "languageSubtitle": "Wählen Sie die Sprache der Benutzeroberfläche.",
+    "budgetCycle": "Budgetzyklus",
+    "resetDay": "Monatlicher Rücksetzungstag",
+    "resetDaySubtitle": "Ihre letzten Transaktionen und Ihr Budget werden jeden Monat ab diesem Tag berechnet.",
+    "dayOfMonth": "Der {{day}}. des Monats",
+    "appearance": "Erscheinungsbild",
+    "theme": "Thema",
+    "themeSubtitle": "Wählen Sie Ihr bevorzugtes Thema.",
+    "recurringRules": "Wiederkehrende Regeln",
+    "noRecurringRules": "Keine aktiven wiederkehrenden Regeln.",
+    "until": "Bis",
+    "predictedOn": "Fällig am",
+    "deleteRuleConfirm": "Diese wiederkehrende Regel löschen?",
+    "dataManagement": "Datenverwaltung",
+    "backupRestore": "Sicherung & Wiederherstellung",
+    "backupSubtitle": "Sichern Sie Ihre Daten oder stellen Sie sie aus einer früheren Sicherung wieder her.",
+    "export": "Exportieren",
+    "import": "Importieren",
+    "importConfirm": "Möchten Sie {{count}} Transaktionen und {{categories}} Kategorien importieren? Dies ersetzt die aktuellen Daten.",
+    "importSuccess": "Import erfolgreich!",
+    "importError": "Fehler beim Importieren: Ungültige Datei.",
+    "appStats": "Anwendungsstatistiken",
+    "statsDetail": "{{transactions}} Transaktionen • {{categories}} Kategorien • {{rules}} Wiederkehrende Regeln",
+    "dangerZone": "Gefahrenzone",
+    "dangerMessage": "Das Löschen von Daten entfernt alle Ihre Transaktionen, benutzerdefinierten Kategorien und Einstellungen aus diesem Browser.",
+    "clearAll": "Alles löschen",
+    "clearConfirm": "Sind Sie sicher, dass Sie alle Daten löschen möchten? Diese Aktion ist unwiderruflich."
+  }
+}

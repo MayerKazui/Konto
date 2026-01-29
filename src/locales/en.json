@@ -1,0 +1,98 @@
+{
+  "app": {
+    "title": "Konto",
+    "description": "Simplified budget management"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "forecast": "Forecast",
+    "settings": "Settings"
+  },
+  "forecast": {
+    "title": "Financial Forecast",
+    "subtitle": "Balance projection for the next 6 months.",
+    "graphTitle": "Cash Flow Projection",
+    "emptyState": "No recurring transactions found. Add recurring income or bills to see a forecast."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Overview of your financial health.",
+    "totalBalance": "Total Balance",
+    "income": "Income",
+    "expenses": "Expenses",
+    "investments": "Investments",
+    "noIncome": "No income recorded",
+    "noExpense": "No expenses recorded",
+    "comingSoon": "Coming soon",
+    "vsLastMonth": "vs last month"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "subtitle": "Manage your income and expenses.",
+    "addTransaction": "Add",
+    "searchPlaceholder": "Search...",
+    "currentBalance": "Current Balance",
+    "forecastBalance": "Forecast Balance",
+    "emptyState": "No transactions. Add one to start!",
+    "recurring": "RECURRING",
+    "projected": "PLANNED",
+    "delete": "Delete"
+  },
+  "form": {
+    "addTitle": "Add Transaction",
+    "expense": "Expense",
+    "income": "Income",
+    "amount": "Amount",
+    "date": "Date",
+    "description": "Description",
+    "descriptionPlaceholder": "Rent, Groceries, etc.",
+    "isRecurring": "Recurring Transaction",
+    "frequency": "Frequency",
+    "frequencies": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "duration": "Duration",
+    "durationInfinite": "Indefinite",
+    "durationDate": "Until...",
+    "durationOccurrences": "For",
+    "times": "times",
+    "submit": "Add"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your preferences and data.",
+    "language": "Language",
+    "appLanguage": "App Language",
+    "languageSubtitle": "Choose interface language.",
+    "budgetCycle": "Budget Cycle",
+    "resetDay": "Monthly Reset Day",
+    "resetDaySubtitle": "Your recent transactions and budget will be calculated from this day each month.",
+    "dayOfMonth": "{{day}} of the month",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeSubtitle": "Choose your preferred theme.",
+    "recurringRules": "Recurring Rules",
+    "noRecurringRules": "No active recurring rules.",
+    "until": "Until",
+    "predictedOn": "Due on",
+    "deleteRuleConfirm": "Delete this recurring rule?",
+    "dataManagement": "Data Management",
+    "backupRestore": "Backup & Restore",
+    "backupSubtitle": "Backup your data or restore from a previous backup.",
+    "export": "Export",
+    "import": "Import",
+    "importConfirm": "Do you want to import {{count}} transactions and {{categories}} categories? This will replace current data.",
+    "importSuccess": "Import successful!",
+    "importError": "Error importing: Invalid file.",
+    "appStats": "Application Stats",
+    "statsDetail": "{{transactions}} Transactions • {{categories}} Categories • {{rules}} Recurring Rules",
+    "dangerZone": "Danger Zone",
+    "dangerMessage": "Clearing data will remove all your transactions, custom categories, and settings from this browser.",
+    "clearAll": "Clear All",
+    "clearConfirm": "Are you sure you want to delete all data? This action is irreversible."
+  }
+}

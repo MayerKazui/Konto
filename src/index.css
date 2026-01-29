@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
+  
+  .dark {
+    color-scheme: dark;
+  }
+  
+  .light {
+    color-scheme: light;
+  }
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 transition-colors duration-200;
+}

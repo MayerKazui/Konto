@@ -1,0 +1,100 @@
+{
+  "app": {
+    "title": "Konto",
+    "description": "Gestion de budget simplifiée"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "transactions": "Transactions",
+    "forecast": "Prévisions",
+    "settings": "Paramètres"
+  },
+  "forecast": {
+    "title": "Prévisions Financières",
+    "subtitle": "Projection du solde sur les 6 prochains mois.",
+    "graphTitle": "Projection des Flux de Trésorerie",
+    "emptyState": "Aucune transaction récurrente trouvée. Ajoutez des revenus ou des factures récurrentes pour voir une prévision."
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "subtitle": "Aperçu de votre santé financière.",
+    "totalBalance": "Solde Total",
+    "income": "Revenus",
+    "expenses": "Dépenses",
+    "investments": "Épargne",
+    "noIncome": "Aucun revenu ce mois-ci",
+    "noExpense": "Aucune dépense ce mois-ci",
+    "savingsSubtitle": "Solde de la période",
+    "vsLastMonth": "par rapport au mois dernier"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "subtitle": "Gérez vos revenus et dépenses.",
+    "addTransaction": "Ajouter",
+    "searchPlaceholder": "Rechercher...",
+    "currentBalance": "Solde Actuel",
+    "forecastBalance": "Solde Prévisionnel",
+    "emptyState": "Pas de transactions. Ajoutez-en une pour commencer !",
+    "recurring": "RÉCURRENT",
+    "projected": "PRÉVU",
+    "delete": "Supprimer"
+  },
+  "form": {
+    "addTitle": "Ajouter une Transaction",
+    "editTitle": "Modifier la Transaction",
+    "expense": "Dépense",
+    "income": "Revenu",
+    "amount": "Montant",
+    "date": "Date",
+    "description": "Description",
+    "descriptionPlaceholder": "Loyer, Courses, etc.",
+    "isRecurring": "Transaction Récurrente",
+    "frequency": "Fréquence",
+    "frequencies": {
+      "daily": "Quotidien",
+      "weekly": "Hebdomadaire",
+      "monthly": "Mensuel",
+      "yearly": "Annuel"
+    },
+    "duration": "Durée",
+    "durationInfinite": "Indéfini",
+    "durationDate": "Jusqu'au...",
+    "durationOccurrences": "Pour",
+    "times": "fois",
+    "submit": "Ajouter",
+    "save": "Mettre à jour"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez vos préférences et vos données.",
+    "language": "Langue",
+    "appLanguage": "Langue de l'application",
+    "languageSubtitle": "Choisissez la langue de l'interface.",
+    "budgetCycle": "Cycle Budgétaire",
+    "resetDay": "Jour de réinitialisation mensuelle",
+    "resetDaySubtitle": "Vos transactions récentes et votre budget seront calculés à partir de ce jour chaque mois.",
+    "dayOfMonth": "Le {{day}} du mois",
+    "appearance": "Apparence",
+    "theme": "Thème",
+    "themeSubtitle": "Choisissez votre thème préféré.",
+    "recurringRules": "Transactions Récurrentes",
+    "noRecurringRules": "Aucune transaction récurrente active.",
+    "until": "Jusqu'au",
+    "predictedOn": "Prévu le",
+    "deleteRuleConfirm": "Supprimer cette règle récurrente ?",
+    "dataManagement": "Gestion des Données",
+    "backupRestore": "Sauvegarde et Restauration",
+    "backupSubtitle": "Sauvegardez vos données ou restaurez une sauvegarde précédente.",
+    "export": "Exporter",
+    "import": "Importer",
+    "importConfirm": "Voulez-vous importer {{count}} transactions et {{categories}} catégories ? Cela remplacera les données actuelles.",
+    "importSuccess": "Importation réussie !",
+    "importError": "Erreur lors de l'importation : Fichier invalide.",
+    "appStats": "Statistiques de l'application",
+    "statsDetail": "{{transactions}} Transactions • {{categories}} Catégories • {{rules}} Règles Récurrentes",
+    "dangerZone": "Zone Danger",
+    "dangerMessage": "Effacer les données supprimera toutes vos transactions, catégories personnalisées et paramètres de ce navigateur.",
+    "clearAll": "Tout Effacer",
+    "clearConfirm": "Êtes-vous sûr de vouloir supprimer toutes les données ? Cette action est irréversible."
+  }
+}
