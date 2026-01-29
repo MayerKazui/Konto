@@ -93,6 +93,20 @@
     "dangerZone": "Gefahrenzone",
     "dangerMessage": "Das Löschen von Daten entfernt alle Ihre Transaktionen, benutzerdefinierten Kategorien und Einstellungen aus diesem Browser.",
     "clearAll": "Alles löschen",
-    "clearConfirm": "Sind Sie sicher, dass Sie alle Daten löschen möchten? Diese Aktion ist unwiderruflich."
+    "clearConfirm": "Sind Sie sicher, dass Sie alle Daten löschen möchten? Diese Aktion ist unwiderruflich.",
+    "accountGroups": "Kontogruppen",
+    "addGroup": "Gruppe erstellen",
+    "createGroup": "Gruppe erstellen",
+    "groupName": "Gruppenname:",
+    "selectAccounts": "Konten auswählen:",
+    "deleteAccountMessage": "Sind Sie sicher, dass Sie dieses Konto löschen möchten? Alle zugehörigen Transaktionen gehen verloren.",
+    "deleteGroupTitle": "Diese Gruppe löschen?",
+    "deleteGroupMessage": "Sind Sie sicher, dass Sie diese Gruppe löschen möchten?",
+    "deleteRuleMessage": "Sind Sie sicher, dass Sie diese wiederkehrende Regel löschen möchten?",
+    "deleteTransactionMessage": "Sind Sie sicher, dass Sie diese Transaktion löschen möchten?",
+    "editRecurringTitle": "Wiederkehrende Regel bearbeiten",
+    "editRecurringMessage": "Sie ändern eine bestehende wiederkehrende Regel. Wie möchten Sie diese Änderungen anwenden?",
+    "editRecurringFuture": "Nur zukünftige",
+    "editRecurringAll": "Gesamter Verlauf"
   }
 }

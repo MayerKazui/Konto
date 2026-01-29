@@ -9,6 +9,7 @@ import type { Transaction } from '@/types';
 export const Transactions = () => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+    // const { selectedAccountId } = useBudgetStore(); // Get selectedAccountId from the store
 
     const handleEdit = (transaction: Transaction) => {
         setEditingTransaction(transaction);

@@ -25,7 +25,10 @@
     "noIncome": "Aucun revenu ce mois-ci",
     "noExpense": "Aucune dépense ce mois-ci",
     "savingsSubtitle": "Solde de la période",
-    "vsLastMonth": "par rapport au mois dernier"
+    "vsLastMonth": "par rapport au mois dernier",
+    "aggregateAccounts": "Vue globale (Tous les comptes)",
+    "viewCurrent": "Compte Actif",
+    "viewAll": "Tous les comptes"
   },
   "transactions": {
     "title": "Transactions",
@@ -62,7 +65,10 @@
     "durationOccurrences": "Pour",
     "times": "fois",
     "submit": "Ajouter",
-    "save": "Mettre à jour"
+    "create": "Créer",
+    "save": "Mettre à jour",
+    "account": "Compte",
+    "selectAccount": "Sélectionner un compte"
   },
   "settings": {
     "title": "Paramètres",
@@ -77,6 +83,11 @@
     "appearance": "Apparence",
     "theme": "Thème",
     "themeSubtitle": "Choisissez votre thème préféré.",
+    "accounts": "Comptes",
+    "addAccount": "Ajouter un compte",
+    "accountNamePrompt": "Nom du compte:",
+    "includeInTotal": "Inclure dans le total",
+    "deleteAccountConfirm": "Supprimer ce compte ?",
     "recurringRules": "Transactions Récurrentes",
     "noRecurringRules": "Aucune transaction récurrente active.",
     "until": "Jusqu'au",
@@ -95,6 +106,20 @@
     "dangerZone": "Zone Danger",
     "dangerMessage": "Effacer les données supprimera toutes vos transactions, catégories personnalisées et paramètres de ce navigateur.",
     "clearAll": "Tout Effacer",
-    "clearConfirm": "Êtes-vous sûr de vouloir supprimer toutes les données ? Cette action est irréversible."
+    "clearConfirm": "Êtes-vous sûr de vouloir supprimer toutes les données ? Cette action est irréversible.",
+    "accountGroups": "Groupes de comptes",
+    "addGroup": "Créer un groupe",
+    "createGroup": "Créer un groupe",
+    "groupName": "Nom du groupe:",
+    "selectAccounts": "Sélectionner les comptes:",
+    "deleteAccountMessage": "Voulez-vous vraiment supprimer ce compte ? Toutes les transactions associées seront perdues.",
+    "deleteGroupTitle": "Supprimer ce groupe ?",
+    "deleteGroupMessage": "Voulez-vous vraiment supprimer ce groupe ?",
+    "deleteRuleMessage": "Voulez-vous vraiment supprimer cette règle récurrente ?",
+    "deleteTransactionMessage": "Voulez-vous vraiment supprimer cette transaction ?",
+    "editRecurringTitle": "Modifier la récurrence",
+    "editRecurringMessage": "Vous modifiez une règle récurrente existante. Comment voulez-vous appliquer ces changements ?",
+    "editRecurringFuture": "Futures seulement",
+    "editRecurringAll": "Historique complet"
   }
 }

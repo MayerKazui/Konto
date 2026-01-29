@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { clsx } from 'clsx'; // Assuming clsx is installed since we used it in UI components, otherwise template literal
 
 import { useTranslation } from 'react-i18next';
+import { GlobalAccountSwitcher } from '@/components/GlobalAccountSwitcher';
 
 import { useBudgetStore } from '@/stores/useBudgetStore';
 import { useEffect } from 'react';
@@ -63,7 +64,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
             {/* Main Content */}
             <main className="flex-1 overflow-auto bg-white dark:bg-slate-950 transition-colors duration-200">
                 <div className="p-4 md:p-8 max-w-7xl mx-auto pb-24 md:pb-8 space-y-6">
-                    <div className="flex justify-end">
+                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-4 items-center">
+                        <GlobalAccountSwitcher />
                         <PeriodNavigation />
                     </div>
                     {children}

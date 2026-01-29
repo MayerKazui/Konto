@@ -4,7 +4,9 @@ import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { ArrowDown, ArrowUp, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import type { Transaction } from '@/types';
+import { useState } from 'react';
 
 interface TransactionListProps {
     onEdit?: (transaction: Transaction) => void;
@@ -12,7 +14,19 @@ interface TransactionListProps {
 
 export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
     const { t } = useTranslation();
-    const { transactions, deleteTransaction, resetDay, recurringTransactions, currentViewDate } = useBudgetStore();
+    const { transactions, deleteTransaction, resetDay, recurringTransactions, currentViewDate, selectedAccountId } = useBudgetStore();
+
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+    });
 
 
 
@@ -38,7 +52,11 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
 
     // 1. Get Actual Transactions
     const actualTransactions = transactions
-        .filter(t => t.date >= startDateStr && t.date < endDateStr)
+        .filter(t => {
+            const dateMatch = t.date >= startDateStr && t.date < endDateStr;
+            const accountMatch = selectedAccountId ? t.accountId === selectedAccountId : true;
+            return dateMatch && accountMatch;
+        })
         .map(t => ({ ...t, isProjected: false }));
 
     // 2. Generate Projected Transactions from Recurring Rules
@@ -46,6 +64,7 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
 
     recurringTransactions.forEach(rt => {
         if (!rt.active) return;
+        if (selectedAccountId && rt.accountId !== selectedAccountId) return;
 
         // We use 'let' because we are modifying nextDue in the loop
         let nextDue = new Date(rt.nextDueDate);
@@ -90,6 +109,13 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
 
     return (
         <div className="space-y-4">
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+            />
             {/* Summary Header */}
             <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="p-4 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800">
@@ -164,7 +190,14 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
                                         variant="ghost"
                                         size="sm"
                                         className="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400"
-                                        onClick={() => deleteTransaction(transaction.id)}
+                                        onClick={() => {
+                                            setConfirmModal({
+                                                isOpen: true,
+                                                title: t('transactions.delete') || "Supprimer",
+                                                message: t('settings.deleteTransactionMessage'),
+                                                onConfirm: () => deleteTransaction(transaction.id)
+                                            });
+                                        }}
                                     >
                                         <Trash2 size={16} />
                                     </Button>

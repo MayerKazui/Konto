@@ -3,8 +3,10 @@ import { useBudgetStore } from '@/stores/useBudgetStore';
 import { Button } from '@/components/ui/Button';
 import type { RecurringTransaction, Transaction, TransactionType } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Modal } from '@/components/ui/Modal';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { AccountSelector } from './AccountSelector';
 
 interface TransactionFormProps {
     onClose?: () => void;
@@ -14,6 +16,11 @@ interface TransactionFormProps {
 export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) => {
     const { t } = useTranslation();
     const { addTransaction, updateTransaction, addRecurringTransaction, updateRecurringTransaction, categories } = useBudgetStore();
+
+    // Account State
+    const { accounts } = useBudgetStore();
+    const defaultAccountId = accounts.length > 0 ? accounts[0].id : '';
+    const [accountId, setAccountId] = useState(defaultAccountId);
 
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
@@ -32,6 +39,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
             setAmount(initialData.amount.toString());
             setDescription(initialData.description || '');
             setType(initialData.type);
+            setAccountId(initialData.accountId || defaultAccountId);
 
             if ('date' in initialData) {
                 // Standard Transaction
@@ -53,12 +61,36 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 }
             }
         }
-    }, [initialData]);
+    }, [initialData, defaultAccountId]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    // Versioning Modal State
+    const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
+
+
+
+    const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!amount) return;
+        if (!amount || !accountId) return;
 
+        // Check for recurrence edit with sensitive changes
+        if (initialData && 'frequency' in initialData && isRecurring) {
+            const currentAmount = parseFloat(amount);
+            const sensitiveChanged =
+                currentAmount !== initialData.amount ||
+                frequency !== initialData.frequency ||
+                accountId !== initialData.accountId;
+
+            if (sensitiveChanged) {
+                setIsVersionModalOpen(true);
+                return;
+            }
+        }
+
+        // If not sensitive or new, just process as 'all' (update in place)
+        executeSubmit('all');
+    };
+
+    const executeSubmit = (versionMode: 'all' | 'future') => {
         // Auto-assign first category of the selected type
         const defaultCategory = categories.find(c => c.type === type);
         const finalCategoryId = initialData?.categoryId || (defaultCategory ? defaultCategory.id : categories[0].id);
@@ -69,11 +101,9 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
             if (endDateType === 'date' && endDate) {
                 finalEndDate = endDate;
             } else if (endDateType === 'occurrences' && occurrences) {
-                // Calculate end date based on occurrences
                 const num = parseInt(occurrences);
                 if (!isNaN(num) && num > 0) {
                     const start = new Date(date);
-                    // Logic to add (num - 1) periods to start date
                     if (frequency === 'daily') start.setDate(start.getDate() + (num - 1));
                     if (frequency === 'weekly') start.setDate(start.getDate() + (num - 1) * 7);
                     if (frequency === 'monthly') start.setMonth(start.getMonth() + (num - 1));
@@ -86,37 +116,61 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 amount: parseFloat(amount),
                 description,
                 type,
-                categoryId: finalCategoryId, // Keep existing category if editing, or default
+                categoryId: finalCategoryId,
+                accountId,
                 frequency,
                 startDate: date,
-                nextDueDate: date, // Logic for update might need refinement if we don't want to reset nextDueDate
+                nextDueDate: date,
                 endDate: finalEndDate,
                 active: true,
             };
 
             if (initialData && 'frequency' in initialData) {
-                // Update existing recurring
-                // We preserve nextDueDate from initialData unless user explicitly wants to reset it?
-                // For simplicity, if they change the date (start date), it resets the cycle.
-                updateRecurringTransaction(initialData.id, {
-                    ...recurringData,
-                    nextDueDate: initialData.nextDueDate !== date ? date : initialData.nextDueDate
-                });
+                // Editing existing
+                if (versionMode === 'future') {
+                    // 1. End the old rule yesterday
+                    const yesterday = new Date(date);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                    updateRecurringTransaction(initialData.id, {
+                        endDate: yesterdayStr,
+                        // We might want to ensure it doesn't trigger anymore if it was supposed to trigger today?
+                        // If nextDueDate is today or future, it shouldn't trigger for the OLD rule anymore if we split from today.
+                        // Ideally, nextDueDate of old rule stays as is, but since endDate is yesterday, it won't be picked up by checkRecurringTransactions loop check.
+                    });
+
+                    // 2. Create new rule starting today
+                    addRecurringTransaction({
+                        id: crypto.randomUUID(),
+                        ...recurringData,
+                        startDate: date,
+                        nextDueDate: date
+                    });
+
+                } else {
+                    // Update all (in place)
+                    updateRecurringTransaction(initialData.id, {
+                        ...recurringData,
+                        nextDueDate: initialData.nextDueDate !== date ? date : initialData.nextDueDate
+                    });
+                }
             } else {
-                // Create new
+                // Creating new
                 addRecurringTransaction({
                     id: crypto.randomUUID(),
                     ...recurringData,
                     nextDueDate: date,
                 });
             }
-
         } else {
+            // Standard transaction
             const transactionData = {
                 amount: parseFloat(amount),
                 description,
                 type,
                 categoryId: finalCategoryId,
+                accountId,
                 date,
                 isRecurring: false,
             };
@@ -130,12 +184,16 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 });
             }
         }
+        closeForm();
+    };
 
+    const closeForm = () => {
         setAmount('');
         setDescription('');
         setIsRecurring(false);
+        setIsVersionModalOpen(false);
         if (onClose) onClose();
-    };
+    }
 
     return (
         <Card className="w-full max-w-md mx-auto">
@@ -148,7 +206,32 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 )}
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <Modal
+                    isOpen={isVersionModalOpen}
+                    onClose={() => setIsVersionModalOpen(false)}
+                    title={t('settings.editRecurringTitle') || "Modifier la récurrence"}
+                    footer={
+                        <>
+                            <Button
+                                variant="secondary"
+                                onClick={() => executeSubmit('future')}
+                            >
+                                {t('settings.editRecurringFuture') || "Futures seulement"}
+                            </Button>
+                            <Button
+                                onClick={() => executeSubmit('all')}
+                            >
+                                {t('settings.editRecurringAll') || "Historique complet"}
+                            </Button>
+                        </>
+                    }
+                >
+                    <p className="text-slate-600 dark:text-slate-300">
+                        {t('settings.editRecurringMessage') || "Vous modifiez une règle récurrente existante. Comment voulez-vous appliquer ces changements ?"}
+                    </p>
+                </Modal>
+
+                <form onSubmit={handleFormSubmit} className="space-y-4">
                     <div className="flex gap-2">
                         <Button
                             type="button"
@@ -167,6 +250,8 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                             {t('form.income')}
                         </Button>
                     </div>
+
+                    <AccountSelector value={accountId} onChange={setAccountId} />
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">

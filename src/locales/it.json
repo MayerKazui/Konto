@@ -93,6 +93,20 @@
     "dangerZone": "Zona Pericolo",
     "dangerMessage": "Cancellare i dati rimuoverà tutte le tue transazioni, categorie personalizzate e impostazioni da questo browser.",
     "clearAll": "Cancella Tutto",
-    "clearConfirm": "Sei sicuro di voler cancellare tutti i dati? Questa azione è irreversibile."
+    "clearConfirm": "Sei sicuro di voler cancellare tutti i dati? Questa azione è irreversibile.",
+    "accountGroups": "Gruppi di Conti",
+    "addGroup": "Crea Gruppo",
+    "createGroup": "Crea Gruppo",
+    "groupName": "Nome del Gruppo:",
+    "selectAccounts": "Seleziona Conti:",
+    "deleteAccountMessage": "Sei sicuro di voler eliminare questo conto? Tutte le transazioni associate andranno perse.",
+    "deleteGroupTitle": "Eliminare questo gruppo?",
+    "deleteGroupMessage": "Sei sicuro di voler eliminare questo gruppo?",
+    "deleteRuleMessage": "Sei sicuro di voler eliminare questa regola ricorrente?",
+    "deleteTransactionMessage": "Sei sicuro di voler eliminare questa transazione?",
+    "editRecurringTitle": "Modifica Regola Ricorrente",
+    "editRecurringMessage": "Stai modificando una regola ricorrente esistente. Come vuoi applicare queste modifiche?",
+    "editRecurringFuture": "Solo future",
+    "editRecurringAll": "Cronologia completa"
   }
 }

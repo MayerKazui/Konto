@@ -25,7 +25,10 @@
     "noIncome": "No income recorded",
     "noExpense": "No expenses recorded",
     "comingSoon": "Coming soon",
-    "vsLastMonth": "vs last month"
+    "vsLastMonth": "vs last month",
+    "aggregateAccounts": "Global View (All Accounts)",
+    "viewCurrent": "Current Account",
+    "viewAll": "All Accounts"
   },
   "transactions": {
     "title": "Transactions",
@@ -60,7 +63,11 @@
     "durationDate": "Until...",
     "durationOccurrences": "For",
     "times": "times",
-    "submit": "Add"
+    "submit": "Add",
+    "create": "Create",
+    "save": "Update",
+    "account": "Account",
+    "selectAccount": "Select an account"
   },
   "settings": {
     "title": "Settings",
@@ -75,6 +82,11 @@
     "appearance": "Appearance",
     "theme": "Theme",
     "themeSubtitle": "Choose your preferred theme.",
+    "accounts": "Accounts",
+    "addAccount": "Add Account",
+    "accountNamePrompt": "Account Name:",
+    "includeInTotal": "Include in Total",
+    "deleteAccountConfirm": "Delete this account?",
     "recurringRules": "Recurring Rules",
     "noRecurringRules": "No active recurring rules.",
     "until": "Until",
@@ -93,6 +105,20 @@
     "dangerZone": "Danger Zone",
     "dangerMessage": "Clearing data will remove all your transactions, custom categories, and settings from this browser.",
     "clearAll": "Clear All",
-    "clearConfirm": "Are you sure you want to delete all data? This action is irreversible."
+    "clearConfirm": "Are you sure you want to delete all data? This action is irreversible.",
+    "accountGroups": "Account Groups",
+    "addGroup": "Create Group",
+    "createGroup": "Create Group",
+    "groupName": "Group Name:",
+    "selectAccounts": "Select Accounts:",
+    "deleteAccountMessage": "Are you sure you want to delete this account? All associated transactions will be lost.",
+    "deleteGroupTitle": "Delete this group?",
+    "deleteGroupMessage": "Are you sure you want to delete this group?",
+    "deleteRuleMessage": "Are you sure you want to delete this recurring rule?",
+    "deleteTransactionMessage": "Are you sure you want to delete this transaction?",
+    "editRecurringTitle": "Edit Recurring Rule",
+    "editRecurringMessage": "You are modifying an existing recurring rule. How do you want to apply these changes?",
+    "editRecurringFuture": "Future only",
+    "editRecurringAll": "Full history"
   }
 }

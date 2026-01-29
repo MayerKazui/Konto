@@ -6,7 +6,7 @@ import path from 'path'
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     react(),
     VitePWA({
@@ -69,9 +69,10 @@ export default defineConfig({
       }
     })
   ],
+  base: command === 'build' ? '/Konto/' : '/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-})
+}))
