@@ -28,7 +28,11 @@
     "vsLastMonth": "par rapport au mois dernier",
     "aggregateAccounts": "Vue globale (Tous les comptes)",
     "viewCurrent": "Compte Actif",
-    "viewAll": "Tous les comptes"
+    "viewAll": "Tous les comptes",
+    "expenseBreakdown": "Répartition des Dépenses",
+    "balanceTrend": "Évolution du Solde",
+    "noData": "Pas de données",
+    "balance": "Solde"
   },
   "transactions": {
     "title": "Transactions",

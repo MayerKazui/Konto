@@ -60,14 +60,14 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
         .map(t => ({ ...t, isProjected: false }));
 
     // 2. Generate Projected Transactions from Recurring Rules
-    const projectedTransactions: any[] = [];
+    const projectedTransactions: Transaction[] = [];
 
     recurringTransactions.forEach(rt => {
         if (!rt.active) return;
         if (selectedAccountId && rt.accountId !== selectedAccountId) return;
 
         // We use 'let' because we are modifying nextDue in the loop
-        let nextDue = new Date(rt.nextDueDate);
+        const nextDue = new Date(rt.nextDueDate);
 
         // Loop to generate multiple occurrences if needed until endDate
         while (nextDue < endDate) {
@@ -83,6 +83,7 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
                     description: rt.description,
                     type: rt.type,
                     categoryId: rt.categoryId,
+                    accountId: rt.accountId || 'default', // Fallback or strict? RecursiveTransactions should have accountId. 
                     date: nextDueStr,
                     isRecurring: true,
                     isProjected: true
@@ -119,18 +120,18 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
             {/* Summary Header */}
             <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="p-4 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800">
-                    <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">{t('transactions.currentBalance')}</p>
+                    <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">{t('transactions.currentBalance') as string}</p>
                     <p className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">{currentTotal.toFixed(2)} €</p>
                 </div>
                 <div className="p-4 rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800">
-                    <p className="text-sm font-medium text-violet-600 dark:text-violet-400">{t('transactions.forecastBalance')}</p>
+                    <p className="text-sm font-medium text-violet-600 dark:text-violet-400">{t('transactions.forecastBalance') as string}</p>
                     <p className="text-2xl font-bold text-violet-900 dark:text-violet-100">{forecastTotal.toFixed(2)} €</p>
                 </div>
             </div>
 
             {sortedTransactions.length === 0 ? (
                 <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-                    {t('transactions.emptyState')}
+                    {t('transactions.emptyState') as string}
                 </div>
             ) : sortedTransactions.map((transaction) => {
                 return (
@@ -153,12 +154,12 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
                                     {transaction.description || 'Transaction'}
                                     {transaction.isProjected && (
                                         <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
-                                            {t('transactions.projected')}
+                                            {t('transactions.projected') as string}
                                         </span>
                                     )}
                                     {transaction.isRecurring && (
                                         <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 font-bold">
-                                            {t('transactions.recurring')}
+                                            {t('transactions.recurring') as string}
                                         </span>
                                     )}
                                 </div>
@@ -193,8 +194,8 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
                                         onClick={() => {
                                             setConfirmModal({
                                                 isOpen: true,
-                                                title: t('transactions.delete') || "Supprimer",
-                                                message: t('settings.deleteTransactionMessage'),
+                                                title: (t('transactions.delete') || "Supprimer") as string,
+                                                message: t('settings.deleteTransactionMessage') as string,
                                                 onConfirm: () => deleteTransaction(transaction.id)
                                             });
                                         }}

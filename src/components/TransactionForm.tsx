@@ -36,6 +36,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
 
     useEffect(() => {
         if (initialData) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setAmount(initialData.amount.toString());
             setDescription(initialData.description || '');
             setType(initialData.type);
@@ -209,25 +210,25 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 <Modal
                     isOpen={isVersionModalOpen}
                     onClose={() => setIsVersionModalOpen(false)}
-                    title={t('settings.editRecurringTitle') || "Modifier la récurrence"}
+                    title={(t('settings.editRecurringTitle') || "Modifier la récurrence") as string}
                     footer={
                         <>
                             <Button
                                 variant="secondary"
                                 onClick={() => executeSubmit('future')}
                             >
-                                {t('settings.editRecurringFuture') || "Futures seulement"}
+                                {(t('settings.editRecurringFuture') || "Futures seulement") as string}
                             </Button>
                             <Button
                                 onClick={() => executeSubmit('all')}
                             >
-                                {t('settings.editRecurringAll') || "Historique complet"}
+                                {(t('settings.editRecurringAll') || "Historique complet") as string}
                             </Button>
                         </>
                     }
                 >
                     <p className="text-slate-600 dark:text-slate-300">
-                        {t('settings.editRecurringMessage') || "Vous modifiez une règle récurrente existante. Comment voulez-vous appliquer ces changements ?"}
+                        {(t('settings.editRecurringMessage') || "Vous modifiez une règle récurrente existante. Comment voulez-vous appliquer ces changements ?") as string}
                     </p>
                 </Modal>
 
@@ -239,7 +240,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                             className="flex-1"
                             onClick={() => setType('expense')}
                         >
-                            {t('form.expense')}
+                            {t('form.expense') as string}
                         </Button>
                         <Button
                             type="button"
@@ -247,7 +248,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                             className="flex-1"
                             onClick={() => setType('income')}
                         >
-                            {t('form.income')}
+                            {t('form.income') as string}
                         </Button>
                     </div>
 
@@ -304,7 +305,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                             className="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer disabled:opacity-50"
                         />
                         <label htmlFor="isRecurring" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            {t('form.isRecurring')}
+                            {t('form.isRecurring') as string}
                         </label>
                     </div>
 
@@ -312,24 +313,24 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                                    {t('form.frequency')}
+                                    {t('form.frequency') as string}
                                 </label>
                                 <select
                                     value={frequency}
-                                    onChange={(e) => setFrequency(e.target.value as any)}
+                                    onChange={(e) => setFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly')}
                                     className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
                                 >
-                                    <option value="monthly">{t('form.frequencies.monthly')}</option>
-                                    <option value="weekly">{t('form.frequencies.weekly')}</option>
-                                    <option value="daily">{t('form.frequencies.daily')}</option>
-                                    <option value="yearly">{t('form.frequencies.yearly')}</option>
+                                    <option value="monthly">{t('form.frequencies.monthly') as string}</option>
+                                    <option value="weekly">{t('form.frequencies.weekly') as string}</option>
+                                    <option value="daily">{t('form.frequencies.daily') as string}</option>
+                                    <option value="yearly">{t('form.frequencies.yearly') as string}</option>
                                 </select>
                             </div>
 
                             {/* Recurrence Duration */}
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                    {t('form.duration')}
+                                    {t('form.duration') as string}
                                 </label>
                                 <div className="space-y-3">
                                     <div className="flex items-center space-x-2">
@@ -346,7 +347,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                                             className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
                                         />
                                         <label htmlFor="duration-infinite" className="text-sm text-slate-700 dark:text-slate-300">
-                                            {t('form.durationInfinite')}
+                                            {t('form.durationInfinite') as string}
                                         </label>
                                     </div>
 
@@ -360,7 +361,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                                             className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
                                         />
                                         <label htmlFor="duration-date" className="text-sm text-slate-700 dark:text-slate-300">
-                                            {t('form.durationDate')}
+                                            {t('form.durationDate') as string}
                                         </label>
                                         {endDateType === 'date' && (
                                             <input
@@ -383,7 +384,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                                             className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
                                         />
                                         <label htmlFor="duration-occurrences" className="text-sm text-slate-700 dark:text-slate-300">
-                                            {t('form.durationOccurrences')}
+                                            {t('form.durationOccurrences') as string}
                                         </label>
                                         {endDateType === 'occurrences' && (
                                             <div className="flex items-center gap-2">
@@ -396,7 +397,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                                                     placeholder="3"
                                                     required
                                                 />
-                                                <span className="text-sm text-slate-500">{t('form.times')}</span>
+                                                <span className="text-sm text-slate-500">{t('form.times') as string}</span>
                                             </div>
                                         )}
                                     </div>
@@ -406,7 +407,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                     )}
 
                     <Button type="submit" className="w-full mt-4">
-                        {initialData ? t('form.save') : t('form.submit')}
+                        {(initialData ? t('form.save') : t('form.submit')) as string}
                     </Button>
                 </form>
             </CardContent>

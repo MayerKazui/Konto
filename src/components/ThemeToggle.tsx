@@ -1,4 +1,4 @@
-import { useTheme } from "@/components/ThemeProvider"
+import { useTheme, type Theme } from "@/components/ThemeProvider"
 import { clsx } from 'clsx';
 
 export function ThemeToggle() {
@@ -13,7 +13,7 @@ export function ThemeToggle() {
             ].map(({ id, label }) => (
                 <button
                     key={id}
-                    onClick={() => setTheme(id as any)}
+                    onClick={() => setTheme(id as Theme)}
                     className={clsx(
                         "px-3 py-1.5 text-sm font-medium rounded-md transition-all",
                         theme === id

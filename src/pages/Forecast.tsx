@@ -45,13 +45,13 @@ export const Forecast = () => {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">{t('forecast.title')}</h2>
-                <p className="text-slate-500 dark:text-slate-400">{t('forecast.subtitle')}</p>
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">{t('forecast.title') as string}</h2>
+                <p className="text-slate-500 dark:text-slate-400">{t('forecast.subtitle') as string}</p>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>{t('forecast.graphTitle')}</CardTitle>
+                    <CardTitle>{t('forecast.graphTitle') as string}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="h-[400px] w-full">
@@ -78,7 +78,7 @@ export const Forecast = () => {
                                     tick={{ fontSize: 12, fill: '#64748b' }}
                                 />
                                 <Tooltip
-                                    formatter={(value: any) => [`${Number(value).toFixed(2)} €`, t('transactions.currentBalance')]} // Reusing "Solde Actuel" or similar? Maybe just "Solde"
+                                    formatter={(value: number) => [`${value.toFixed(2)} €`, t('transactions.currentBalance') as string]} // Reusing "Solde Actuel" or similar? Maybe just "Solde"
                                     labelStyle={{ color: '#1e293b' }}
                                     contentStyle={{
                                         borderRadius: '8px',
@@ -104,7 +104,7 @@ export const Forecast = () => {
 
             {recurringTransactions.length === 0 && (
                 <div className="text-center p-8 bg-slate-50 dark:bg-slate-900 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">
-                    <p>{t('forecast.emptyState')}</p>
+                    <p>{t('forecast.emptyState') as string}</p>
                 </div>
             )}
         </div>

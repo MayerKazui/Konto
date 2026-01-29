@@ -28,7 +28,11 @@
     "vsLastMonth": "vs last month",
     "aggregateAccounts": "Global View (All Accounts)",
     "viewCurrent": "Current Account",
-    "viewAll": "All Accounts"
+    "viewAll": "All Accounts",
+    "expenseBreakdown": "Expenses Breakdown",
+    "balanceTrend": "Balance Trend",
+    "noData": "No data",
+    "balance": "Balance"
   },
   "transactions": {
     "title": "Transactions",
