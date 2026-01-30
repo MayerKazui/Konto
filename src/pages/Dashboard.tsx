@@ -4,8 +4,7 @@ import { TrendingUp, TrendingDown, DollarSign, Wallet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { calculateTrendData } from '@/utils/chartUtils';
 
 export const Dashboard = () => {
     const { t, i18n } = useTranslation();
@@ -79,33 +78,8 @@ export const Dashboard = () => {
 
     // Calculate Trend Data (Daily Balance Evolution)
     const trendData = useMemo(() => {
-        const data: { date: string; balance: number }[] = [];
-        // Clone start date to avoid mutation of the memoized startDate object (though it's reconstructed in useMemo above, it's safer)
-        const currentIterDate = new Date(startDate);
-
-        const netChangeDuringPeriod = cycleTransactions.reduce((acc, t) => t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
-        let runningBalance = balance - netChangeDuringPeriod; // Start here
-
-        // Map transactions by date for O(1) lookup
-        const txsByDate: Record<string, number> = {};
-        cycleTransactions.forEach(t => {
-            const d = t.date;
-            txsByDate[d] = (txsByDate[d] || 0) + (t.type === 'income' ? t.amount : -t.amount);
-        });
-
-        while (currentIterDate < endDate) {
-            const dateStr = currentIterDate.toISOString().split('T')[0];
-            const dailyChange = txsByDate[dateStr] || 0;
-            runningBalance += dailyChange;
-
-            data.push({
-                date: format(currentIterDate, 'd MMM', { locale: i18n.language === 'fr' ? fr : undefined }),
-                balance: runningBalance
-            });
-            currentIterDate.setDate(currentIterDate.getDate() + 1);
-        }
-        return data;
-    }, [cycleTransactions, startDate, endDate, balance, i18n.language]);
+        return calculateTrendData(transactions, startDate, endDate, targetAccountIds, i18n.language);
+    }, [transactions, startDate, endDate, targetAccountIds, i18n.language]);
 
     return (
         <div className="space-y-6">

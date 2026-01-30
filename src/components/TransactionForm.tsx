@@ -7,6 +7,7 @@ import { Modal } from '@/components/ui/Modal';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { AccountSelector } from './AccountSelector';
+import type { Frequency } from '@/types';
 
 interface TransactionFormProps {
     onClose?: () => void;
@@ -15,32 +16,52 @@ interface TransactionFormProps {
 
 export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) => {
     const { t } = useTranslation();
-    const { addTransaction, updateTransaction, addRecurringTransaction, updateRecurringTransaction, categories } = useBudgetStore();
+    const { addTransaction, updateTransaction, addRecurringTransaction, updateRecurringTransaction, addTransfer } = useBudgetStore();
 
     // Account State
-    const { accounts } = useBudgetStore();
-    const defaultAccountId = accounts.length > 0 ? accounts[0].id : '';
-    const [accountId, setAccountId] = useState(defaultAccountId);
+
+    const { accounts, selectedAccountId } = useBudgetStore();
+
+    // Default to selected account, or first account if none selected
+    const initialAccountId = initialData?.accountId || selectedAccountId || (accounts.length > 0 ? accounts[0].id : '');
+    const [accountId, setAccountId] = useState(initialAccountId);
+
+    // Default destination account (for transfers) - try to find one that isn't the source
+    const defaultToAccountId = accounts.find(a => a.id !== accountId)?.id || (accounts.length > 0 ? accounts[0].id : '');
+    const [toAccountId, setToAccountId] = useState(initialData && 'toAccountId' in initialData && initialData.toAccountId ? initialData.toAccountId : defaultToAccountId);
 
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
-    const [type, setType] = useState<TransactionType>('expense');
+    const [type, setType] = useState<TransactionType | 'transfer'>('expense');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+
 
     // Recurring state
     const [isRecurring, setIsRecurring] = useState(false);
-    const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
+    const [frequency, setFrequency] = useState<Frequency>('monthly');
     const [endDateType, setEndDateType] = useState<'date' | 'occurrences' | null>(null);
     const [endDate, setEndDate] = useState('');
     const [occurrences, setOccurrences] = useState('');
 
     useEffect(() => {
         if (initialData) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setAmount(initialData.amount.toString());
             setDescription(initialData.description || '');
-            setType(initialData.type);
-            setAccountId(initialData.accountId || defaultAccountId);
+            setAccountId(initialData.accountId || selectedAccountId || accounts[0]?.id || '');
+
+            if ('isTransfer' in initialData && initialData.isTransfer) {
+                setType('transfer');
+                // For existing transfers, we might need logic to find the linked account.
+                // But generally editing transfers is complex because they are two transactions.
+                // For now, let's assume editing limits.
+                if ('toAccountId' in initialData && initialData.toAccountId) {
+                    setToAccountId(initialData.toAccountId);
+                }
+            } else {
+                setType(initialData.type);
+            }
+
+
 
             if ('date' in initialData) {
                 // Standard Transaction
@@ -50,8 +71,6 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 // Recurring Transaction
                 setIsRecurring(true);
                 setFrequency(initialData.frequency);
-                // For recurring, we might use nextDueDate or startDate depending on what we want to edit.
-                // Usually startDate is the anchor.
                 setDate(initialData.startDate || initialData.nextDueDate);
 
                 if (initialData.endDate) {
@@ -62,16 +81,19 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 }
             }
         }
-    }, [initialData, defaultAccountId]);
+    }, [initialData, selectedAccountId, accounts, type]);
 
     // Versioning Modal State
     const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
 
-
-
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!amount || !accountId) return;
+        if (type === 'transfer' && !toAccountId) return;
+        if (type === 'transfer' && accountId === toAccountId) {
+            alert("Source and Destination accounts must be different.");
+            return;
+        }
 
         // Check for recurrence edit with sensitive changes
         if (initialData && 'frequency' in initialData && isRecurring) {
@@ -92,9 +114,6 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
     };
 
     const executeSubmit = (versionMode: 'all' | 'future') => {
-        // Auto-assign first category of the selected type
-        const defaultCategory = categories.find(c => c.type === type);
-        const finalCategoryId = initialData?.categoryId || (defaultCategory ? defaultCategory.id : categories[0].id);
 
         if (isRecurring) {
             let finalEndDate: string | undefined = undefined;
@@ -116,14 +135,15 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
             const recurringData = {
                 amount: parseFloat(amount),
                 description,
-                type,
-                categoryId: finalCategoryId,
+                type: type === 'transfer' ? 'expense' : type as TransactionType,
                 accountId,
                 frequency,
                 startDate: date,
                 nextDueDate: date,
                 endDate: finalEndDate,
                 active: true,
+                isTransfer: type === 'transfer',
+                toAccountId: type === 'transfer' ? toAccountId : undefined
             };
 
             if (initialData && 'frequency' in initialData) {
@@ -134,12 +154,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                     yesterday.setDate(yesterday.getDate() - 1);
                     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-                    updateRecurringTransaction(initialData.id, {
-                        endDate: yesterdayStr,
-                        // We might want to ensure it doesn't trigger anymore if it was supposed to trigger today?
-                        // If nextDueDate is today or future, it shouldn't trigger for the OLD rule anymore if we split from today.
-                        // Ideally, nextDueDate of old rule stays as is, but since endDate is yesterday, it won't be picked up by checkRecurringTransactions loop check.
-                    });
+                    updateRecurringTransaction(initialData.id, { endDate: yesterdayStr });
 
                     // 2. Create new rule starting today
                     addRecurringTransaction({
@@ -165,24 +180,27 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 });
             }
         } else {
-            // Standard transaction
-            const transactionData = {
-                amount: parseFloat(amount),
-                description,
-                type,
-                categoryId: finalCategoryId,
-                accountId,
-                date,
-                isRecurring: false,
-            };
-
-            if (initialData && !('frequency' in initialData)) {
-                updateTransaction(initialData.id, transactionData);
+            // Standard transaction or Transfer
+            if (type === 'transfer') {
+                addTransfer(accountId, toAccountId, parseFloat(amount), date, description);
             } else {
-                addTransaction({
-                    id: crypto.randomUUID(),
-                    ...transactionData,
-                });
+                const transactionData = {
+                    amount: parseFloat(amount),
+                    description,
+                    type: type as TransactionType,
+                    accountId,
+                    date,
+                    isRecurring: false,
+                };
+
+                if (initialData && !('frequency' in initialData)) {
+                    updateTransaction(initialData.id, transactionData);
+                } else {
+                    addTransaction({
+                        id: crypto.randomUUID(),
+                        ...transactionData,
+                    });
+                }
             }
         }
         closeForm();
@@ -250,9 +268,37 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                         >
                             {t('form.income') as string}
                         </Button>
+                        <Button
+                            type="button"
+                            variant={type === 'transfer' ? 'primary' : 'secondary'} // Use primary or a distinct color
+                            className={`flex-1 ${type === 'transfer' ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
+                            onClick={() => setType('transfer')}
+                        >
+                            {t('form.transfer') || 'Virement'}
+                        </Button>
                     </div>
 
-                    <AccountSelector value={accountId} onChange={setAccountId} />
+                    {/* Source Account */}
+                    <div>
+                        <AccountSelector
+                            value={accountId}
+                            onChange={setAccountId}
+                            label={type === 'transfer' ? (t('form.transferSource') || "Compte Source") : t('form.account')}
+                        />
+                    </div>
+
+                    {/* Destination Account (Transfer Only) */}
+                    {type === 'transfer' && (
+                        <div>
+                            <AccountSelector
+                                value={toAccountId}
+                                onChange={setToAccountId}
+                                label={t('form.transferDestination') || "Vers le compte"}
+                            />
+                        </div>
+                    )}
+
+
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -317,7 +363,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                                 </label>
                                 <select
                                     value={frequency}
-                                    onChange={(e) => setFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly')}
+                                    onChange={(e) => setFrequency(e.target.value as Frequency)}
                                     className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
                                 >
                                     <option value="monthly">{t('form.frequencies.monthly') as string}</option>

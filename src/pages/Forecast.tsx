@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 export const Forecast = () => {
     const { t } = useTranslation();
-    const { recurringTransactions, getBalance } = useBudgetStore();
+    const { recurringTransactions, getBalance, selectedAccountId } = useBudgetStore();
 
     const forecastData = useMemo(() => {
         const today = startOfDay(new Date());
@@ -25,11 +25,40 @@ export const Forecast = () => {
                 const start = new Date(rt.startDate);
                 if (isBefore(date, start)) return;
 
-                if (rt.frequency === 'monthly' && date.getDate() === start.getDate()) {
-                    currentBalance += (rt.type === 'income' ? rt.amount : -rt.amount);
-                }
-                if (rt.frequency === 'weekly' && date.getDay() === start.getDay()) {
-                    currentBalance += (rt.type === 'income' ? rt.amount : -rt.amount);
+                // Determine effective frequency match
+                let matchesDate = false;
+                if (rt.frequency === 'daily') matchesDate = true;
+                if (rt.frequency === 'weekly' && date.getDay() === start.getDay()) matchesDate = true;
+                if (rt.frequency === 'monthly' && date.getDate() === start.getDate()) matchesDate = true;
+                if (rt.frequency === 'yearly' && date.getDate() === start.getDate() && date.getMonth() === start.getMonth()) matchesDate = true;
+
+                if (matchesDate) {
+                    // Logic for applying transaction based on view and type
+
+                    // 1. Global View
+                    if (!selectedAccountId) {
+                        if (rt.isTransfer) {
+                            // Transfers are neutral in global view
+                            return;
+                        }
+                        // Apply normal income/expense
+                        currentBalance += (rt.type === 'income' ? rt.amount : -rt.amount);
+                    }
+                    // 2. Single Account View
+                    else {
+                        // If this account is the SOURCE
+                        if (rt.accountId === selectedAccountId) {
+                            // It's an outflow (Expense or Transfer Out)
+                            // If it's a transfer, it's still money leaving THIS account
+                            currentBalance += (rt.type === 'income' ? rt.amount : -rt.amount);
+                        }
+                        // If this account is the DESTINATION (Transfer In)
+                        else if (rt.isTransfer && rt.toAccountId === selectedAccountId) {
+                            // It's an inflow (Money coming in)
+                            currentBalance += rt.amount;
+                        }
+                        // Else: Rule doesn't apply to this account
+                    }
                 }
             });
 
@@ -40,7 +69,7 @@ export const Forecast = () => {
         }
 
         return data;
-    }, [recurringTransactions, getBalance]);
+    }, [recurringTransactions, getBalance, selectedAccountId]);
 
     return (
         <div className="space-y-6">
@@ -78,7 +107,7 @@ export const Forecast = () => {
                                     tick={{ fontSize: 12, fill: '#64748b' }}
                                 />
                                 <Tooltip
-                                    formatter={(value: number) => [`${value.toFixed(2)} €`, t('transactions.currentBalance') as string]} // Reusing "Solde Actuel" or similar? Maybe just "Solde"
+                                    formatter={(value: number | undefined) => [`${(value || 0).toFixed(2)} €`, t('transactions.currentBalance') as string]} // Reusing "Solde Actuel" or similar? Maybe just "Solde"
                                     labelStyle={{ color: '#1e293b' }}
                                     contentStyle={{
                                         borderRadius: '8px',

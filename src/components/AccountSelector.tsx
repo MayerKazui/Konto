@@ -4,20 +4,25 @@ import { useTranslation } from 'react-i18next';
 interface AccountSelectorProps {
     value?: string;
     onChange: (value: string) => void;
+    label?: string; // Optional custom label
 }
 
-export const AccountSelector = ({ value, onChange }: AccountSelectorProps) => {
+export const AccountSelector = ({ value, onChange, label }: AccountSelectorProps) => {
     const { t } = useTranslation();
     const { accounts } = useBudgetStore();
 
     // If no accounts exist (edge case before rehydration), don't render or render placeholder
     if (!accounts || accounts.length === 0) return null;
 
+    const labelText = label !== undefined ? label : (t('form.account') || "Compte");
+
     return (
         <div className="space-y-1">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                {t('form.account') || "Compte"}
-            </label>
+            {labelText && (
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {labelText}
+                </label>
+            )}
             <select
                 value={value}
                 onChange={(e) => onChange(e.target.value)}

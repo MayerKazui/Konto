@@ -13,7 +13,7 @@ import type { RecurringTransaction } from '@/types';
 
 export const Settings = () => {
     const { t, i18n } = useTranslation();
-    const { transactions, categories, recurringTransactions, accounts, selectedAccountId } = useBudgetStore();
+    const { transactions, recurringTransactions, accounts, selectedAccountId } = useBudgetStore();
 
     const filteredRecurringTransactions = recurringTransactions.filter(rt =>
         selectedAccountId ? rt.accountId === selectedAccountId : true
@@ -103,7 +103,6 @@ export const Settings = () => {
     const handleExport = () => {
         const data = {
             transactions,
-            categories,
             recurringTransactions,
             accountGroups: useBudgetStore.getState().accountGroups,
             exportDate: new Date().toISOString(),
@@ -130,13 +129,13 @@ export const Settings = () => {
                 const content = e.target?.result as string;
                 const data = JSON.parse(content);
 
-                if (!data.transactions || !data.categories) {
+                if (!data.transactions) {
                     throw new Error('Format de fichier invalide');
                 }
 
                 openConfirm(
                     t('settings.import'),
-                    t('settings.importConfirm', { count: data.transactions.length, categories: data.categories.length }),
+                    t('settings.importConfirm', { count: data.transactions.length }),
                     () => {
                         importData(data);
                         alert(t('settings.importSuccess'));
@@ -444,14 +443,13 @@ export const Settings = () => {
                         ) : (
                             <div className="space-y-2">
                                 {filteredRecurringTransactions.map((recurringTransaction) => {
-                                    const category = categories.find(c => c.id === recurringTransaction.categoryId);
                                     // Translate frequency if mapped, otherwise raw
                                     const freqLabel = t(`form.frequencies.${recurringTransaction.frequency}`);
 
                                     return (
                                         <div key={recurringTransaction.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg gap-3 sm:gap-0">
                                             <div>
-                                                <p className="font-medium text-slate-900 dark:text-slate-100">{recurringTransaction.description || category?.name}</p>
+                                                <p className="font-medium text-slate-900 dark:text-slate-100">{recurringTransaction.description}</p>
                                                 <p className="text-xs text-slate-500 dark:text-slate-400">
                                                     {recurringTransaction.amount.toFixed(2)} € • {freqLabel}
                                                     {recurringTransaction.endDate && ` • ${t('settings.until')} ${format(parseISO(recurringTransaction.endDate), 'dd/MM/yyyy')}`}
@@ -532,7 +530,7 @@ export const Settings = () => {
                             <div>
                                 <h4 className="font-medium text-slate-900">{t('settings.appStats')}</h4>
                                 <p className="text-sm text-slate-500 mt-1">
-                                    {t('settings.statsDetail', { transactions: transactions.length, categories: categories.length, rules: filteredRecurringTransactions.length })}
+                                    {t('settings.statsDetail', { transactions: transactions.length, rules: filteredRecurringTransactions.length })}
                                 </p>
                             </div>
                         </div>

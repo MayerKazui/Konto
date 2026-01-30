@@ -1,34 +1,29 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Account, Category, RecurringTransaction, Transaction, AccountGroup } from '@/types';
+import type { Account, RecurringTransaction, Transaction, AccountGroup } from '@/types';
 interface BudgetState {
   transactions: Transaction[];
-  categories: Category[];
   recurringTransactions: RecurringTransaction[];
-
-  addTransaction: (transaction: Transaction) => void;
-  updateTransaction: (id: string, transaction: Partial<Transaction>) => void;
-  deleteTransaction: (id: string) => void;
-
-  addCategory: (category: Category) => void;
-  updateCategory: (id: string, category: Partial<Category>) => void;
-  deleteCategory: (id: string) => void;
-
-  addRecurringTransaction: (transaction: RecurringTransaction) => void;
-  updateRecurringTransaction: (id: string, transaction: Partial<RecurringTransaction>) => void;
-  deleteRecurringTransaction: (id: string) => void;
-
-  importData: (data: { transactions: Transaction[]; categories: Category[]; recurringTransactions: RecurringTransaction[]; accountGroups?: AccountGroup[] }) => void;
-
-  resetDay: number;
-  setResetDay: (day: number) => void;
-  checkRecurringTransactions: () => void;
-
-  // Account State
   accounts: Account[];
   selectedAccountId: string | null;
+  currentViewDate: Date;
+  resetDay: number;
+  setResetDay: (day: number) => void;
+
+
+  addTransaction: (transaction: Transaction) => void;
+  updateTransaction: (id: string, updated: Partial<Transaction>) => void;
+  deleteTransaction: (id: string) => void;
+  importData: (data: Partial<BudgetState>) => void;
+
+  addRecurringTransaction: (transaction: RecurringTransaction) => void;
+  updateRecurringTransaction: (id: string, updated: Partial<RecurringTransaction>) => void;
+  deleteRecurringTransaction: (id: string) => void;
+  checkRecurringTransactions: () => void;
+  addTransfer: (fromAccount: string, toAccount: string, amount: number, date: string, description?: string) => void;
+
   addAccount: (account: Account) => void;
-  updateAccount: (id: string, account: Partial<Account>) => void;
+  updateAccount: (id: string, updated: Partial<Account>) => void;
   deleteAccount: (id: string) => void;
   setSelectedAccount: (id: string) => void;
 
@@ -39,7 +34,7 @@ interface BudgetState {
   deleteAccountGroup: (id: string) => void;
 
   // View State
-  currentViewDate: Date;
+
   setCurrentViewDate: (date: Date) => void;
 
   // Helpers
@@ -50,13 +45,7 @@ export const useBudgetStore = create<BudgetState>()(
   persist(
     (set, get) => ({
       transactions: [],
-      categories: [
-        { id: '1', name: 'Salary', type: 'income', color: '#10b981' },
-        { id: '2', name: 'Housing', type: 'expense', color: '#ef4444' },
-        { id: '3', name: 'Food', type: 'expense', color: '#f59e0b' },
-        { id: '4', name: 'Transport', type: 'expense', color: '#3b82f6' },
-        { id: '5', name: 'Entertainment', type: 'expense', color: '#8b5cf6' },
-      ],
+
       recurringTransactions: [],
       // Account State
       accounts: [],
@@ -72,22 +61,19 @@ export const useBudgetStore = create<BudgetState>()(
           ),
         })),
       deleteTransaction: (id) =>
-        set((state) => ({
-          transactions: state.transactions.filter((t) => t.id !== id),
-        })),
+        set((state) => {
+          const transaction = state.transactions.find((t) => t.id === id);
+          if (transaction && transaction.linkedTransactionId) {
+             return {
+                transactions: state.transactions.filter((t) => t.id !== id && t.id !== transaction.linkedTransactionId),
+             };
+          }
+          return {
+            transactions: state.transactions.filter((t) => t.id !== id),
+          };
+        }),
 
-      addCategory: (category) =>
-        set((state) => ({ categories: [...state.categories, category] })),
-      updateCategory: (id, updated) =>
-        set((state) => ({
-          categories: state.categories.map((c) =>
-            c.id === id ? { ...c, ...updated } : c
-          ),
-        })),
-      deleteCategory: (id) =>
-        set((state) => ({
-          categories: state.categories.filter((c) => c.id !== id),
-        })),
+
 
       addRecurringTransaction: (transaction) => {
         set((state) => ({ recurringTransactions: [...state.recurringTransactions, transaction] }));
@@ -149,7 +135,7 @@ export const useBudgetStore = create<BudgetState>()(
       importData: (data) =>
         set(() => ({
           transactions: data.transactions || [],
-          categories: data.categories || [],
+
           recurringTransactions: data.recurringTransactions || [],
           accountGroups: data.accountGroups || [], // Import groups
           accounts: [],
@@ -160,8 +146,39 @@ export const useBudgetStore = create<BudgetState>()(
 
       setCurrentViewDate: (date) => set({ currentViewDate: date }),
 
+      addTransfer: (fromAccount, toAccount, amount, date, description) => {
+        const expenseId = crypto.randomUUID();
+        const incomeId = crypto.randomUUID();
+
+        const expenseTx: Transaction = {
+          id: expenseId,
+          amount,
+          type: 'expense',
+          date,
+          description: description || 'Transfer Out',
+          accountId: fromAccount,
+          isRecurring: false,
+          isTransfer: true,
+          linkedTransactionId: incomeId
+        };
+
+        const incomeTx: Transaction = {
+          id: incomeId,
+          amount,
+          type: 'income',
+          date,
+          description: description || 'Transfer In',
+          accountId: toAccount,
+          isRecurring: false,
+          isTransfer: true,
+          linkedTransactionId: expenseId
+        };
+
+        set((state) => ({ transactions: [...state.transactions, expenseTx, incomeTx] }));
+      },
+
       checkRecurringTransactions: () => {
-        const { recurringTransactions, addTransaction, updateRecurringTransaction } = get();
+        const { recurringTransactions, addTransaction, updateRecurringTransaction, addTransfer } = get();
         const today = new Date();
 
         recurringTransactions.forEach((rt) => {
@@ -179,17 +196,26 @@ export const useBudgetStore = create<BudgetState>()(
               break;
             }
 
-            // generate transaction
-            addTransaction({
-              id: crypto.randomUUID(),
-              amount: rt.amount,
-              description: rt.description,
-              type: rt.type,
-              categoryId: rt.categoryId,
-              accountId: rt.accountId,
-              date: nextDue.toISOString().split('T')[0],
-              isRecurring: true,
-            });
+            // Generate transaction or transfer
+            if (rt.isTransfer && rt.toAccountId) {
+                addTransfer(
+                    rt.accountId,
+                    rt.toAccountId,
+                    rt.amount,
+                    nextDue.toISOString().split('T')[0],
+                    rt.description
+                );
+            } else {
+                addTransaction({
+                  id: crypto.randomUUID(),
+                  amount: rt.amount,
+                  description: rt.description,
+                  type: rt.type,
+                  accountId: rt.accountId,
+                  date: nextDue.toISOString().split('T')[0],
+                  isRecurring: true,
+                });
+            }
 
             // Calculate next date
             if (rt.frequency === 'daily') nextDue.setDate(nextDue.getDate() + 1);
@@ -228,7 +254,7 @@ export const useBudgetStore = create<BudgetState>()(
       name: 'budget-storage',
       partialize: (state) => ({
         transactions: state.transactions,
-        categories: state.categories,
+
         recurringTransactions: state.recurringTransactions,
         resetDay: state.resetDay,
         accounts: state.accounts,

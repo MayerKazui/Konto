@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import type { Transaction } from '@/types';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 interface TransactionListProps {
     onEdit?: (transaction: Transaction) => void;
@@ -50,63 +50,63 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
     // Real "Today" for determining what is projected vs actual
     const realToday = new Date();
 
-    // 1. Get Actual Transactions
-    const actualTransactions = transactions
-        .filter(t => {
-            const dateMatch = t.date >= startDateStr && t.date < endDateStr;
-            const accountMatch = selectedAccountId ? t.accountId === selectedAccountId : true;
-            return dateMatch && accountMatch;
-        })
-        .map(t => ({ ...t, isProjected: false }));
+    // 3. Memoize Processing
+    const { sortedTransactions, currentTotal, forecastTotal } = useMemo(() => {
+        // 1. Get Actual Transactions
+        const actualTransactions = transactions
+            .filter(t => {
+                const dateMatch = t.date >= startDateStr && t.date < endDateStr;
+                const accountMatch = selectedAccountId ? t.accountId === selectedAccountId : true;
+                return dateMatch && accountMatch;
+            })
+            .map(t => ({ ...t, isProjected: false }));
 
-    // 2. Generate Projected Transactions from Recurring Rules
-    const projectedTransactions: Transaction[] = [];
+        // 2. Generate Projected Transactions
+        const projectedTransactions: Transaction[] = [];
 
-    recurringTransactions.forEach(rt => {
-        if (!rt.active) return;
-        if (selectedAccountId && rt.accountId !== selectedAccountId) return;
+        recurringTransactions.forEach(rt => {
+            if (!rt.active) return;
+            if (selectedAccountId && rt.accountId !== selectedAccountId) return;
 
-        // We use 'let' because we are modifying nextDue in the loop
-        const nextDue = new Date(rt.nextDueDate);
+            const nextDue = new Date(rt.nextDueDate);
 
-        // Loop to generate multiple occurrences if needed until endDate
-        while (nextDue < endDate) {
-            const nextDueStr = nextDue.toISOString().split('T')[0];
+            while (nextDue < endDate) {
+                const nextDueStr = nextDue.toISOString().split('T')[0];
 
-            // Only add if it's strictly in the future relative to "REAL TODAY"
-            // AND within our cycle window (startDate -> endDate).
-            // We use realToday to decide if it's "Projected" (future) or should have been "Actual" (past).
-            if (nextDue > realToday && nextDue >= startDate) {
-                projectedTransactions.push({
-                    id: `proj-${rt.id}-${nextDueStr}`,
-                    amount: rt.amount,
-                    description: rt.description,
-                    type: rt.type,
-                    categoryId: rt.categoryId,
-                    accountId: rt.accountId || 'default', // Fallback or strict? RecursiveTransactions should have accountId. 
-                    date: nextDueStr,
-                    isRecurring: true,
-                    isProjected: true
-                });
+                if (nextDue > realToday && nextDue >= startDate) {
+                    projectedTransactions.push({
+                        id: `proj-${rt.id}-${nextDueStr}`,
+                        amount: rt.amount,
+                        description: rt.description,
+                        type: rt.type,
+                        accountId: rt.accountId || 'default',
+                        date: nextDueStr,
+                        isRecurring: true,
+                        isProjected: true
+                    });
+                }
+
+                if (rt.frequency === 'daily') nextDue.setDate(nextDue.getDate() + 1);
+                if (rt.frequency === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
+                if (rt.frequency === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
+                if (rt.frequency === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1);
             }
+        });
 
-            // Advance date
-            if (rt.frequency === 'daily') nextDue.setDate(nextDue.getDate() + 1);
-            if (rt.frequency === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
-            if (rt.frequency === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
-            if (rt.frequency === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1);
-        }
-    });
+        // Merge and Sort
+        const sorted = [...actualTransactions, ...projectedTransactions]
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    // Merge and Sort
-    const sortedTransactions = [...actualTransactions, ...projectedTransactions]
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        // Calculate Totals
+        const currTotal = actualTransactions.reduce((acc, t) => t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
+        const forecastAmt = sorted.reduce((acc, t) => t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
 
-    // Calculate Totals
-    const currentTotal = actualTransactions.reduce((acc, t) => t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
-    const forecastAmount = sortedTransactions.reduce((acc, t) => t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
-    // Renaming to forecastTotal to match the view variable
-    const forecastTotal = forecastAmount;
+        return {
+            sortedTransactions: sorted,
+            currentTotal: currTotal,
+            forecastTotal: forecastAmt
+        };
+    }, [transactions, recurringTransactions, selectedAccountId, startDateStr, endDateStr, endDate]);
 
     return (
         <div className="space-y-4">
