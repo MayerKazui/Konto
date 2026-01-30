@@ -71,7 +71,14 @@
     "create": "Create",
     "save": "Update",
     "account": "Account",
-    "selectAccount": "Select an account"
+    "selectAccount": "Select an account",
+    "noAccounts": "No accounts found. Please create one first."
+  },
+  "toast": {
+    "syncSuccess": "Data synced successfully.",
+    "syncError": "Error syncing data.",
+    "savedCloud": "Saved (Cloud)",
+    "savedLocal": "Saved (Local)"
   },
   "settings": {
     "title": "Settings",

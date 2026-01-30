@@ -7,6 +7,7 @@ import { Settings } from '@/pages/Settings';
 import { Login } from '@/pages/Login';
 import { AuthProvider, useAuth } from '@/components/AuthProvider';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ToastProvider } from '@/components/ui/Toast';
 
 // Wrapper to redirect authenticated users away from Login page
 const PublicOnlyRoute = ({ children }: { children: React.ReactElement }) => {
@@ -19,26 +20,28 @@ const PublicOnlyRoute = ({ children }: { children: React.ReactElement }) => {
 function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/login" element={
-          <PublicOnlyRoute>
-            <Login />
-          </PublicOnlyRoute>
-        } />
+      <ToastProvider>
+        <Routes>
+          <Route path="/login" element={
+            <PublicOnlyRoute>
+              <Login />
+            </PublicOnlyRoute>
+          } />
 
-        <Route path="/*" element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/transactions" element={<Transactions />} />
-                <Route path="/forecast" element={<Forecast />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </MainLayout>
-          </ProtectedRoute>
-        } />
-      </Routes>
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/transactions" element={<Transactions />} />
+                  <Route path="/forecast" element={<Forecast />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Routes>
+              </MainLayout>
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </ToastProvider>
     </AuthProvider>
   );
 }

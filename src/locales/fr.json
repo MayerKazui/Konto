@@ -75,7 +75,14 @@
     "create": "Créer",
     "save": "Mettre à jour",
     "account": "Compte",
-    "selectAccount": "Sélectionner un compte"
+    "selectAccount": "Sélectionner un compte",
+    "noAccounts": "Aucun compte trouvé. Veuillez créer un compte d'abord."
+  },
+  "toast": {
+    "syncSuccess": "Données synchronisées avec succès.",
+    "syncError": "Erreur lors de la synchronisation.",
+    "savedCloud": "Sauvegardé (Cloud)",
+    "savedLocal": "Sauvegardé (Local)"
   },
   "settings": {
     "title": "Paramètres",

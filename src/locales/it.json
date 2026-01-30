@@ -60,7 +60,18 @@
     "durationDate": "Fino al...",
     "durationOccurrences": "Per",
     "times": "volte",
-    "submit": "Aggiungi"
+    "submit": "Aggiungi",
+    "create": "Crea",
+    "save": "Aggiorna",
+    "account": "Conto",
+    "selectAccount": "Seleziona conto",
+    "noAccounts": "Nessun conto trovato. Per favore, creane uno prima."
+  },
+  "toast": {
+    "syncSuccess": "Dati sincronizzati con successo.",
+    "syncError": "Errore durante la sincronizzazione.",
+    "savedCloud": "Salvato (Cloud)",
+    "savedLocal": "Salvato (Locale)"
   },
   "settings": {
     "title": "Impostazioni",
