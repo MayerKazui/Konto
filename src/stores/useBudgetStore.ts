@@ -207,19 +207,24 @@ export const useBudgetStore = create<BudgetState>()(
         
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-            await supabase.from('transactions').insert({
-                id: transaction.id,
-                user_id: user.id,
-                account_id: transaction.accountId,
-                amount: transaction.amount,
-                type: transaction.type,
-                date: transaction.date,
-                description: transaction.description,
-                is_recurring: transaction.isRecurring,
-                recurring_id: transaction.recurringId,
-                is_transfer: transaction.isTransfer,
-                linked_transaction_id: transaction.linkedTransactionId
-            });
+            try {
+                const { error } = await supabase.from('transactions').insert({
+                    id: transaction.id,
+                    user_id: user.id,
+                    account_id: transaction.accountId,
+                    amount: transaction.amount,
+                    type: transaction.type,
+                    date: transaction.date,
+                    description: transaction.description,
+                    is_recurring: transaction.isRecurring,
+                    recurring_id: transaction.recurringId,
+                    is_transfer: transaction.isTransfer,
+                    linked_transaction_id: transaction.linkedTransactionId
+                });
+                if (error) console.error("Supabase Add Transaction Error:", error);
+            } catch (err) {
+                console.error("Supabase Add Transaction Exception:", err);
+            }
         }
       },
 
@@ -238,7 +243,12 @@ export const useBudgetStore = create<BudgetState>()(
              if (updated.isRecurring) payload.is_recurring = updated.isRecurring;
              if (updated.recurringId) payload.recurring_id = updated.recurringId;
              
-             await supabase.from('transactions').update(payload).eq('id', id);
+             try {
+                const { error } = await supabase.from('transactions').update(payload).eq('id', id);
+                if (error) console.error("Supabase Update Transaction Error:", error);
+             } catch (err) {
+                 console.error("Supabase Update Transaction Exception:", err);
+             }
         }
       },
 
@@ -260,10 +270,12 @@ export const useBudgetStore = create<BudgetState>()(
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-            await supabase.from('transactions').delete().eq('id', id);
-            if (linkedDeletedId) {
-                await supabase.from('transactions').delete().eq('id', linkedDeletedId);
-            }
+            try {
+                await supabase.from('transactions').delete().eq('id', id);
+                if (linkedDeletedId) {
+                    await supabase.from('transactions').delete().eq('id', linkedDeletedId);
+                }
+            } catch (err) { console.error("Supabase Delete Error:", err); }
         }
       },
 
@@ -327,13 +339,16 @@ export const useBudgetStore = create<BudgetState>()(
         
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-            await supabase.from('accounts').insert({
-                id: account.id,
-                user_id: user.id,
-                name: account.name,
-                type: account.type,
-                include_in_total: account.includeInTotal
-            });
+            try {
+                const { error } = await supabase.from('accounts').insert({
+                    id: account.id,
+                    user_id: user.id,
+                    name: account.name,
+                    type: account.type,
+                    include_in_total: account.includeInTotal
+                });
+                if (error) console.error("Supabase Add Account Error:", error);
+            } catch (err) { console.error("Supabase Add Account Exception:", err); }
         }
       },
 
