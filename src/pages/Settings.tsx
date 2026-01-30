@@ -273,6 +273,34 @@ export const Settings = () => {
                 <p className="text-slate-500 dark:text-slate-400">{t('settings.subtitle')}</p>
             </div>
 
+            <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-none">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-white">
+                        <Wallet className="h-5 w-5" />
+                        Sauvegarde Cloud
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <p className="text-indigo-100 text-sm">
+                            Vous êtes connecté. Vos données se synchronisent automatiquement.
+                            Si vous venez de vous connecter et que votre tableau de bord est vide, envoyez vos données locales vers le cloud.
+                        </p>
+                        <Button
+                            variant="secondary"
+                            onClick={async () => {
+                                await useBudgetStore.getState().uploadLocalData();
+                                alert("Données envoyées vers le cloud !");
+                            }}
+                            className="whitespace-nowrap bg-white text-indigo-600 hover:bg-indigo-50"
+                        >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Envoyer données locales
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
             <div className="space-y-4">
                 {/* Account Management Section */}
                 <Card>
