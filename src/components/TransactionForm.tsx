@@ -83,6 +83,13 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
         }
     }, [initialData, selectedAccountId, accounts, type]);
 
+    // Auto-select account for new transactions if list loads/changes and no account checked
+    useEffect(() => {
+        if (!initialData && !accountId && accounts.length > 0) {
+            setAccountId(selectedAccountId || accounts[0].id);
+        }
+    }, [accounts, selectedAccountId, initialData, accountId]);
+
     // Versioning Modal State
     const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
 
