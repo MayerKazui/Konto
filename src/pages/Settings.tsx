@@ -138,12 +138,12 @@ export const Settings = () => {
                     t('settings.importConfirm', { count: data.transactions.length }),
                     () => {
                         importData(data);
-                        alert(t('settings.importSuccess'));
+                        useBudgetStore.getState().notify(t('settings.importSuccess'), 'success');
                     },
                     'primary'
                 );
             } catch (error) {
-                alert(t('settings.importError'));
+                useBudgetStore.getState().notify(t('settings.importError'), 'error');
                 console.error(error);
             }
         };
@@ -290,7 +290,6 @@ export const Settings = () => {
                             variant="secondary"
                             onClick={async () => {
                                 await useBudgetStore.getState().uploadLocalData();
-                                alert("Données envoyées vers le cloud !");
                             }}
                             className="whitespace-nowrap bg-white text-indigo-600 hover:bg-indigo-50"
                         >
