@@ -88,8 +88,16 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!amount || !accountId) return;
-        if (type === 'transfer' && !toAccountId) return;
+        console.log("Submitting form...", { amount, accountId, type, toAccountId });
+
+        if (!amount || !accountId) {
+            console.log("Validation failed: Missing amount or accountId");
+            return;
+        }
+        if (type === 'transfer' && !toAccountId) {
+            console.log("Validation failed: Missing toAccountId");
+            return;
+        }
         if (type === 'transfer' && accountId === toAccountId) {
             alert("Source and Destination accounts must be different.");
             return;
