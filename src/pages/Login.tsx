@@ -18,7 +18,7 @@ export const Login = () => {
             email,
             options: {
                 // Determine redirect URL based on environment
-                emailRedirectTo: window.location.origin,
+                emailRedirectTo: window.location.origin + import.meta.env.BASE_URL,
             }
         });
 
