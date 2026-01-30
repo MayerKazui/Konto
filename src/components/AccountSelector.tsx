@@ -11,8 +11,21 @@ export const AccountSelector = ({ value, onChange, label }: AccountSelectorProps
     const { t } = useTranslation();
     const { accounts } = useBudgetStore();
 
-    // If no accounts exist (edge case before rehydration), don't render or render placeholder
-    if (!accounts || accounts.length === 0) return null;
+    // If no accounts exist, render a placeholder or disabled state
+    if (!accounts || accounts.length === 0) {
+        return (
+            <div className="space-y-1">
+                {label && (
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {label}
+                    </label>
+                )}
+                <div className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-2 rounded-md border border-red-200 dark:border-red-800">
+                    {t('form.noAccounts') || "Aucun compte trouvé. Veuillez créer un compte d'abord."}
+                </div>
+            </div>
+        );
+    }
 
     const labelText = label !== undefined ? label : (t('form.account') || "Compte");
 

@@ -92,6 +92,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
 
     // Versioning Modal State
     const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -99,14 +100,16 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
 
         if (!amount || !accountId) {
             console.log("Validation failed: Missing amount or accountId");
+            setError(t('form.error.missingFields') || "Veuillez remplir tous les champs obligatoires (Montant et Compte).");
             return;
         }
         if (type === 'transfer' && !toAccountId) {
             console.log("Validation failed: Missing toAccountId");
+            setError(t('form.error.missingDestination') || "Veuillez sélectionner un compte de destination.");
             return;
         }
         if (type === 'transfer' && accountId === toAccountId) {
-            alert("Source and Destination accounts must be different.");
+            setError(t('form.error.sameAccount') || "Les comptes source et destination doivent être différents.");
             return;
         }
 
@@ -266,6 +269,11 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 </Modal>
 
                 <form onSubmit={handleFormSubmit} className="space-y-4">
+                    {error && (
+                        <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                            {error}
+                        </div>
+                    )}
                     <div className="flex gap-2">
                         <Button
                             type="button"
