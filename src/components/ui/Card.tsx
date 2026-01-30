@@ -45,3 +45,10 @@ export const CardContent = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
     <div className={cn('p-6 pt-0', className)} {...props} />
 );
+
+export const CardFooter = ({
+    className,
+    ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+    <div className={cn('flex items-center p-6 pt-0', className)} {...props} />
+);
