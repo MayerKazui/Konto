@@ -59,7 +59,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                 </nav>
                 <div className="p-4 border-t border-slate-200 dark:border-slate-800">
                     <p className="text-xs text-center text-slate-400 dark:text-slate-500 font-mono">
-                        v1.2.1 (Fix Doublons)
+                        v1.2.2 (Nettoyage & Fix Defaults)
                     </p>
                 </div>
             </aside>
