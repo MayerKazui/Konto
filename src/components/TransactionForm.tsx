@@ -96,15 +96,12 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Submitting form...", { amount, accountId, type, toAccountId });
 
         if (!amount || !accountId) {
-            console.log("Validation failed: Missing amount or accountId");
             setError(t('form.error.missingFields') || "Veuillez remplir tous les champs obligatoires (Montant et Compte).");
             return;
         }
         if (type === 'transfer' && !toAccountId) {
-            console.log("Validation failed: Missing toAccountId");
             setError(t('form.error.missingDestination') || "Veuillez sélectionner un compte de destination.");
             return;
         }
