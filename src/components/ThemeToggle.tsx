@@ -9,6 +9,7 @@ export function ThemeToggle() {
             {[
                 { id: 'light', label: 'Clair' },
                 { id: 'dark', label: 'Sombre' },
+                { id: 'girly', label: 'Girly' },
                 { id: 'system', label: 'Système' }
             ].map(({ id, label }) => (
                 <button

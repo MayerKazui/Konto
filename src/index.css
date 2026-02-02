@@ -5,12 +5,48 @@
 @layer base {
   :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    
+  /* Default Slate Palette (Cool Grey) */
+    --color-slate-50: rgb(248 250 252);
+    --color-slate-100: rgb(241 245 249);
+    --color-slate-200: rgb(226 232 240);
+    --color-slate-300: rgb(203 213 225);
+    --color-slate-400: rgb(148 163 184);
+    --color-slate-500: rgb(100 116 139);
+    --color-slate-600: rgb(71 85 105);
+    --color-slate-700: rgb(51 65 85);
+    --color-slate-800: rgb(30 41 59);
+    --color-slate-900: rgb(15 23 42);
+    --color-slate-950: rgb(2 6 23);
   }
   
+  .girly {
+    /* Refined Girly Palette - More visible pinks */
+    --color-slate-50: rgb(255 240 245);  /* LavenderBlush */
+    --color-slate-100: rgb(252 228 236); /* Rose-100 */
+    --color-slate-200: rgb(243 198 215); /* Pink-200 */
+    --color-slate-300: rgb(249 168 212); /* Pink-300 */
+    --color-slate-400: rgb(244 114 182); /* Pink-400 */
+    --color-slate-500: rgb(236 72 153);  /* Pink-500 */
+    --color-slate-600: rgb(219 39 119);  /* Pink-600 */
+    --color-slate-700: rgb(190 24 93);   /* Pink-700 */
+    --color-slate-800: rgb(157 23 77);   /* Pink-800 */
+    --color-slate-900: rgb(131 24 67);   /* Pink-900 */
+    --color-slate-950: rgb(80 7 36);     /* Deepest rose/brown */
+  }
+
   .dark {
     color-scheme: dark;
+    /* In dark mode, we might want the girly theme to be a dark plum if combined?
+       Current implementation assumes "Dark" is a separate mode from "Girly". 
+       Issues arises if User wants "Dark Girly". 
+       The current request implies "Girly" is a theme option alongside Light/Dark or System. 
+       Usually "Girly" implies a light, pinkish theme. 
+       Note: The user said "add a girly theme". 
+       If I treat it as a light theme variant, I should ensure it works well.
+    */
   }
-  
+
   .light {
     color-scheme: light;
   }

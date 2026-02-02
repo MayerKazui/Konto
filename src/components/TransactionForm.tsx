@@ -184,9 +184,12 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
 
                 } else {
                     // Update all (in place)
+                    // Only reset nextDueDate if the user explicitly changed the Start Date
+                    const isStartDateChanged = date !== initialData.startDate;
+
                     updateRecurringTransaction(initialData.id, {
                         ...recurringData,
-                        nextDueDate: initialData.nextDueDate !== date ? date : initialData.nextDueDate
+                        nextDueDate: isStartDateChanged ? date : initialData.nextDueDate
                     });
                 }
             } else {

@@ -516,6 +516,7 @@ export const useBudgetStore = create<BudgetState>()(
           const nextDue = new Date(rt.nextDueDate);
           let updated = false;
           const endDate = rt.endDate ? new Date(rt.endDate) : null;
+          const { transactions } = get();
 
           while (nextDue <= today) {
             if (endDate && nextDue > endDate) {
@@ -523,24 +524,55 @@ export const useBudgetStore = create<BudgetState>()(
               break;
             }
 
+            const currentDateStr = nextDue.toISOString().split('T')[0];
+
             if (rt.isTransfer && rt.toAccountId) {
-              addTransfer(
-                rt.accountId,
-                rt.toAccountId,
-                rt.amount,
-                nextDue.toISOString().split('T')[0],
-                rt.description
-              );
+                // Check if a transfer (Expense side) already exists
+                const duplicate = transactions.find(t => 
+                    // 1. Strict match by Recurring ID
+                    (t.recurringId === rt.id && t.date.startsWith(currentDateStr)) ||
+                    // 2. Loose match for legacy transfers (ignoring isTransfer flag for robustness)
+                    (t.amount === rt.amount && 
+                     t.accountId === rt.accountId &&
+                     t.date.startsWith(currentDateStr) &&
+                     t.type === 'expense') // Expense side of the transfer
+                );
+
+                if (!duplicate) {
+                  addTransfer(
+                    rt.accountId,
+                    rt.toAccountId,
+                    rt.amount,
+                    currentDateStr,
+                    rt.description
+                  );
+                }
             } else {
-              addTransaction({
-                id: crypto.randomUUID(),
-                amount: rt.amount,
-                description: rt.description,
-                type: rt.type,
-                accountId: rt.accountId,
-                date: nextDue.toISOString().split('T')[0],
-                isRecurring: true,
-              });
+              // Check if transaction already exists for this recurring ID and date
+              const duplicate = transactions.find(t => 
+                 // 1. Strict match by Recurring ID
+                 (t.recurringId === rt.id && t.date.startsWith(currentDateStr)) ||
+                 // 2. Loose match for legacy data (ignoring isRecurring for robustness)
+                 // e.g. user manually added it or old version created it without flags
+                 (t.amount === rt.amount && 
+                  t.accountId === rt.accountId &&
+                  t.type === rt.type &&
+                  t.description?.trim() === rt.description?.trim() &&
+                  t.date.startsWith(currentDateStr))
+              );
+
+              if (!duplicate) {
+                  addTransaction({
+                    id: crypto.randomUUID(),
+                    amount: rt.amount,
+                    description: rt.description,
+                    type: rt.type,
+                    accountId: rt.accountId,
+                    date: currentDateStr,
+                    isRecurring: true,
+                    recurringId: rt.id
+                  });
+              }
             }
 
             if (rt.frequency === 'daily') nextDue.setDate(nextDue.getDate() + 1);
