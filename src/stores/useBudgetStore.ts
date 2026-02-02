@@ -21,6 +21,7 @@ interface BudgetState {
   updateTransaction: (id: string, updated: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
   importData: (data: Partial<BudgetState>) => void;
+  clearAllData: () => Promise<void>;
 
   addRecurringTransaction: (transaction: RecurringTransaction) => void;
   updateRecurringTransaction: (id: string, updated: Partial<RecurringTransaction>) => void;
@@ -136,9 +137,64 @@ export const useBudgetStore = create<BudgetState>()(
             accountIds: g.account_ids || []
           }));
           if (formattedGroups.length > 0) set({ accountGroups: formattedGroups });
+          if (formattedGroups.length > 0) set({ accountGroups: formattedGroups });
+        }
+
+        // Ensure at least one account exists
+        const { accounts: currentAccounts } = get();
+        if (currentAccounts.length === 0) {
+             const defaultAccount: Account = {
+                 id: crypto.randomUUID(),
+                 name: 'Compte Principal',
+                 type: 'checking',
+                 includeInTotal: true
+             };
+             get().addAccount(defaultAccount);
+             // addAccount handles the cloud insert
         }
 
         set({ isSyncing: false });
+      },
+
+      clearAllData: async () => {
+          set({ isSyncing: true });
+          const { data: { user } } = await supabase.auth.getUser();
+
+          // 1. Clear Cloud Data if logged in
+          if (user) {
+              try {
+                  // We use neq('id', '00...') to match all valid UUIDs
+                  await supabase.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                  await supabase.from('recurring_transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                  await supabase.from('account_groups').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                  await supabase.from('accounts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                  get().notify("Données cloud supprimées", "success");
+              } catch (err) {
+                  console.error("Clear Data Error:", err);
+                  get().notify("Erreur lors de la suppression cloud", "error");
+              }
+          }
+
+          // 2. Clear Local State
+          set({
+              transactions: [],
+              recurringTransactions: [],
+              accounts: [],
+              selectedAccountId: null,
+              accountGroups: [],
+              isSyncing: false
+          });
+
+          // 3. Create Default Account
+          const defaultAccount: Account = {
+              id: crypto.randomUUID(),
+              name: 'Compte Principal',
+              type: 'checking',
+              includeInTotal: true
+          };
+          get().addAccount(defaultAccount); // Will trigger cloud insert if logged in
+
+          get().notify("Données réinitialisées", "success");
       },
 
       uploadLocalData: async () => {
@@ -366,7 +422,14 @@ export const useBudgetStore = create<BudgetState>()(
       },
 
       addAccount: async (account) => {
-        set((state) => ({ accounts: [...state.accounts, account] }));
+        set((state) => {
+            const newState = { accounts: [...state.accounts, account] };
+            // If it's the first account, select it automatically
+            if (newState.accounts.length === 1) {
+                return { ...newState, selectedAccountId: account.id };
+            }
+            return newState;
+        });
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {

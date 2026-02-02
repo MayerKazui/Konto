@@ -91,8 +91,7 @@ export const Settings = () => {
             t('settings.clearAll'),
             t('settings.clearConfirm'),
             () => {
-                localStorage.removeItem('budget-storage');
-                window.location.reload();
+                useBudgetStore.getState().clearAllData();
             }
         );
     };
