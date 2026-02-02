@@ -1,17 +1,29 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useBudgetStore } from '@/stores/useBudgetStore';
 import { addDays, addMonths, differenceInDays, format, isBefore, startOfDay } from 'date-fns';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useTranslation } from 'react-i18next';
+import { fr, enUS, es, it, de } from 'date-fns/locale';
 
 export const Forecast = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { recurringTransactions, getBalance, selectedAccountId } = useBudgetStore();
+
+    const [forecastRange, setForecastRange] = useState(6);
+
+    const locales: Record<string, any> = {
+        fr,
+        en: enUS,
+        es,
+        it,
+        de
+    };
+    const currentLocale = locales[i18n.resolvedLanguage || 'fr'] || fr;
 
     const forecastData = useMemo(() => {
         const today = startOfDay(new Date());
-        const endDate = addMonths(today, 6); // Forecast 6 months out
+        const endDate = addMonths(today, forecastRange); // Forecast 6 months out
         let currentBalance = getBalance();
 
         const data = [];
@@ -29,8 +41,8 @@ export const Forecast = () => {
                 let matchesDate = false;
                 if (rt.frequency === 'daily') matchesDate = true;
                 if (rt.frequency === 'weekly' && date.getDay() === start.getDay()) matchesDate = true;
-                if (rt.frequency === 'monthly' && date.getDate() === start.getDate()) matchesDate = true;
-                if (rt.frequency === 'yearly' && date.getDate() === start.getDate() && date.getMonth() === start.getMonth()) matchesDate = true;
+                if (rt.frequency === 'monthly') matchesDate = date.getDate() === start.getDate();
+                if (rt.frequency === 'yearly') matchesDate = date.getDate() === start.getDate() && date.getMonth() === start.getMonth();
 
                 if (matchesDate) {
                     // Logic for applying transaction based on view and type
@@ -63,19 +75,38 @@ export const Forecast = () => {
             });
 
             data.push({
-                date: format(date, 'MMM d'),
+                date: format(date, 'MMM d', { locale: currentLocale }),
                 balance: currentBalance,
+                originalDate: date // Keep original date for sorting/debugging if needed
             });
         }
 
         return data;
-    }, [recurringTransactions, getBalance, selectedAccountId]);
+    }, [recurringTransactions, getBalance, selectedAccountId, forecastRange, currentLocale]);
 
     return (
         <div className="space-y-6">
-            <div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">{t('forecast.title') as string}</h2>
-                <p className="text-slate-500 dark:text-slate-400">{t('forecast.subtitle') as string}</p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">{t('forecast.title') as string}</h2>
+                    <p className="text-slate-500 dark:text-slate-400">{t('forecast.subtitle') as string}</p>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Période :
+                    </label>
+                    <select
+                        value={forecastRange}
+                        onChange={(e) => setForecastRange(parseInt(e.target.value))}
+                        className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        <option value={3}>3 mois</option>
+                        <option value={6}>6 mois</option>
+                        <option value={12}>1 an</option>
+                        <option value={24}>2 ans</option>
+                    </select>
+                </div>
             </div>
 
             <Card>
@@ -98,7 +129,7 @@ export const Forecast = () => {
                                     tickLine={false}
                                     axisLine={false}
                                     tick={{ fontSize: 12, fill: '#64748b' }}
-                                    interval={30}
+                                    interval={Math.ceil(forecastData.length / 12)} // Dynamic interval based on range
                                 />
                                 <YAxis
                                     tickLine={false}
@@ -107,7 +138,7 @@ export const Forecast = () => {
                                     tick={{ fontSize: 12, fill: '#64748b' }}
                                 />
                                 <Tooltip
-                                    formatter={(value: number | undefined) => [`${(value || 0).toFixed(2)} €`, t('transactions.currentBalance') as string]} // Reusing "Solde Actuel" or similar? Maybe just "Solde"
+                                    formatter={(value: number | undefined) => [`${(value || 0).toFixed(2)} €`, t('transactions.currentBalance') as string]}
                                     labelStyle={{ color: '#1e293b' }}
                                     contentStyle={{
                                         borderRadius: '8px',

@@ -9,6 +9,9 @@
     "forecast": "Prévisions",
     "settings": "Paramètres"
   },
+  "calendar": {
+    "today": "Aujourd'hui"
+  },
   "forecast": {
     "title": "Prévisions Financières",
     "subtitle": "Projection du solde sur les 6 prochains mois.",

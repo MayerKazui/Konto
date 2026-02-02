@@ -9,6 +9,9 @@
     "forecast": "Prognose",
     "settings": "Einstellungen"
   },
+  "calendar": {
+    "today": "Heute"
+  },
   "forecast": {
     "title": "Finanzprognose",
     "subtitle": "Kontostandsprognose für die nächsten 6 Monate.",

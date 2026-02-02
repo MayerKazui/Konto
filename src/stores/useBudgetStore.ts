@@ -39,6 +39,11 @@ interface BudgetState {
   updateAccountGroup: (id: string, group: Partial<AccountGroup>) => void;
   deleteAccountGroup: (id: string) => void;
 
+  savingsGoals: import('@/types').SavingsGoal[];
+  addSavingsGoal: (goal: import('@/types').SavingsGoal) => void;
+  updateSavingsGoal: (id: string, goal: Partial<import('@/types').SavingsGoal>) => void;
+  deleteSavingsGoal: (id: string) => void;
+
   setCurrentViewDate: (date: Date) => void;
   getBalance: (accountId?: string) => number;
 
@@ -56,6 +61,7 @@ export const useBudgetStore = create<BudgetState>()(
       selectedAccountId: null,
       currentViewDate: new Date(),
       accountGroups: [],
+      savingsGoals: [],
       resetDay: 1,
       isSyncing: false,
       notification: null,
@@ -79,9 +85,6 @@ export const useBudgetStore = create<BudgetState>()(
             type: a.type,
             includeInTotal: a.include_in_total
           }));
-          // Only overwrite if we found data (so we don't wipe local if offline/empty)
-          // Actually, for sync, we should probably overwrite or merge. 
-          // Simplest: Overwrite local with Cloud if Cloud has data.
           if (formattedAccounts.length > 0) {
             set({ accounts: formattedAccounts });
             if (!get().selectedAccountId) {
@@ -123,7 +126,8 @@ export const useBudgetStore = create<BudgetState>()(
             active: r.active,
             accountId: r.account_id,
             toAccountId: r.to_account_id,
-            isTransfer: r.is_transfer
+            isTransfer: r.is_transfer,
+            interval: r.interval
           }));
           if (formattedRecurring.length > 0) set({ recurringTransactions: formattedRecurring });
         }
@@ -137,7 +141,20 @@ export const useBudgetStore = create<BudgetState>()(
             accountIds: g.account_ids || []
           }));
           if (formattedGroups.length > 0) set({ accountGroups: formattedGroups });
-          if (formattedGroups.length > 0) set({ accountGroups: formattedGroups });
+        }
+
+        // Fetch Savings Goals
+        const { data: goals } = await supabase.from('savings_goals').select('*');
+        if (goals) {
+          const formattedGoals = goals.map(g => ({
+            id: g.id,
+            name: g.name,
+            targetAmount: g.target_amount,
+            currentAmount: g.current_amount,
+            deadline: g.deadline,
+            color: g.color
+          }));
+          if (formattedGoals.length > 0) set({ savingsGoals: formattedGoals });
         }
 
         // Ensure at least one account exists
@@ -150,7 +167,6 @@ export const useBudgetStore = create<BudgetState>()(
                  includeInTotal: true
              };
              get().addAccount(defaultAccount);
-             // addAccount handles the cloud insert
         }
 
         set({ isSyncing: false });
@@ -160,13 +176,12 @@ export const useBudgetStore = create<BudgetState>()(
           set({ isSyncing: true });
           const { data: { user } } = await supabase.auth.getUser();
 
-          // 1. Clear Cloud Data if logged in
           if (user) {
               try {
-                  // We use neq('id', '00...') to match all valid UUIDs
                   await supabase.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
                   await supabase.from('recurring_transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
                   await supabase.from('account_groups').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                  await supabase.from('savings_goals').delete().neq('id', '00000000-0000-0000-0000-000000000000');
                   await supabase.from('accounts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
                   get().notify("Données cloud supprimées", "success");
               } catch (err) {
@@ -175,24 +190,23 @@ export const useBudgetStore = create<BudgetState>()(
               }
           }
 
-          // 2. Clear Local State
           set({
               transactions: [],
               recurringTransactions: [],
               accounts: [],
               selectedAccountId: null,
               accountGroups: [],
+              savingsGoals: [],
               isSyncing: false
           });
 
-          // 3. Create Default Account
           const defaultAccount: Account = {
               id: crypto.randomUUID(),
               name: 'Compte Principal',
               type: 'checking',
               includeInTotal: true
           };
-          get().addAccount(defaultAccount); // Will trigger cloud insert if logged in
+          get().addAccount(defaultAccount);
 
           get().notify("Données réinitialisées", "success");
       },
@@ -216,7 +230,6 @@ export const useBudgetStore = create<BudgetState>()(
         }
 
         // Upload Transactions
-        // Batching would be better but simple loop for v1
         const txPayloads = state.transactions.map(t => ({
           id: t.id,
           user_id: user.id,
@@ -246,7 +259,8 @@ export const useBudgetStore = create<BudgetState>()(
           next_due_date: r.nextDueDate,
           end_date: r.endDate,
           active: r.active,
-          is_transfer: r.isTransfer
+          is_transfer: r.isTransfer,
+          interval: r.interval
         }));
         if (recPayloads.length > 0) await supabase.from('recurring_transactions').upsert(recPayloads);
 
@@ -258,6 +272,19 @@ export const useBudgetStore = create<BudgetState>()(
             name: g.name,
             account_ids: g.accountIds
           });
+        }
+
+        // Upload Savings Goals
+        for (const sg of state.savingsGoals) {
+           await supabase.from('savings_goals').upsert({
+               id: sg.id,
+               user_id: user.id,
+               name: sg.name,
+               target_amount: sg.targetAmount,
+               current_amount: sg.currentAmount,
+               deadline: sg.deadline,
+               color: sg.color
+           });
         }
 
         set({ isSyncing: false });
@@ -309,7 +336,6 @@ export const useBudgetStore = create<BudgetState>()(
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          // Map frontend generic partial to DB specific fields if needed
           const payload: any = { ...updated };
           if (updated.accountId) payload.account_id = updated.accountId;
           if (updated.isRecurring) payload.is_recurring = updated.isRecurring;
@@ -333,7 +359,6 @@ export const useBudgetStore = create<BudgetState>()(
       },
 
       deleteTransaction: async (id) => {
-        // Optimistic delete
         let linkedDeletedId: string | undefined;
         set((state) => {
           const transaction = state.transactions.find((t) => t.id === id);
@@ -385,18 +410,99 @@ export const useBudgetStore = create<BudgetState>()(
             next_due_date: transaction.nextDueDate,
             end_date: transaction.endDate,
             active: transaction.active,
-            is_transfer: transaction.isTransfer
+            is_transfer: transaction.isTransfer,
+            interval: transaction.interval // Add interval to payload
           });
         }
       },
 
       updateRecurringTransaction: async (id, updated) => {
+        const { recurringTransactions } = get();
+        const oldRT = recurringTransactions.find(t => t.id === id);
+
+        // 1. Propagate changes to child transactions (History Update) - PRE-UPDATE
+        // We do this BEFORE updating the rule and running checkRecurringTransactions
+        // to ensure the transactions are already at their new dates/values so checkRecurring doesn't create duplicates.
+        if (oldRT) {
+            const propUpdates: any = {};
+            let shouldPropagate = false;
+            let daysDiff = 0;
+
+            // Check for sensitive changes
+            if (updated.amount !== undefined && updated.amount !== oldRT.amount) { propUpdates.amount = updated.amount; shouldPropagate = true; }
+            if (updated.description !== undefined && updated.description !== oldRT.description) { propUpdates.description = updated.description; shouldPropagate = true; }
+            if (updated.accountId !== undefined && updated.accountId !== oldRT.accountId) { propUpdates.accountId = updated.accountId; shouldPropagate = true; }
+            if (updated.toAccountId !== undefined && updated.toAccountId !== oldRT.toAccountId) { propUpdates.toAccountId = updated.toAccountId; shouldPropagate = true; }
+            
+                // Calculate Date Shift
+                if (updated.startDate && updated.startDate !== oldRT.startDate) {
+                    const oldStart = new Date(oldRT.startDate);
+                    const newStart = new Date(updated.startDate);
+                    const diffTime = newStart.getTime() - oldStart.getTime();
+                    daysDiff = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                    if (daysDiff !== 0) shouldPropagate = true;
+                }
+                
+                // If interval changed, we might want to regenerate future? 
+                // Currently propUpdates handles history. Changing interval usually applies to future generation.
+                // existing child transactions are "done". 
+                
+                if (shouldPropagate) {
+                const { transactions: currentTransactions } = get();
+                // Find all child transactions
+                const affectedChildren = currentTransactions.filter(t => t.recurringId === id);
+                
+                if (affectedChildren.length > 0) {
+                    const updatedTransactions = currentTransactions.map(t => {
+                        if (t.recurringId === id) {
+                            const txUpdate: any = { ...propUpdates };
+                            
+                            // Apply date shift
+                            if (daysDiff !== 0) {
+                                const txDate = new Date(t.date);
+                                txDate.setDate(txDate.getDate() + daysDiff);
+                                txUpdate.date = txDate.toISOString().split('T')[0];
+                            }
+                            return { ...t, ...txUpdate };
+                        }
+                        return t;
+                    });
+
+                    set({ transactions: updatedTransactions });
+
+                    // Supabase Sync for Children
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) {
+                        const childrenToSync = updatedTransactions.filter(t => t.recurringId === id);
+                        const txPayloads = childrenToSync.map(t => ({
+                            id: t.id,
+                            user_id: user.id,
+                            account_id: t.accountId,
+                            amount: t.amount,
+                            type: t.type,
+                            date: t.date,
+                            description: t.description,
+                            is_recurring: t.isRecurring,
+                            recurring_id: t.recurringId,
+                            is_transfer: t.isTransfer,
+                            linked_transaction_id: t.linkedTransactionId
+                        }));
+                        await supabase.from('transactions').upsert(txPayloads);
+                    }
+                }
+            }
+        }
+
+        // 2. Update Recurring Transaction State
         set((state) => ({
           recurringTransactions: state.recurringTransactions.map((t) =>
             t.id === id ? { ...t, ...updated } : t
           ),
         }));
+        
+        // 3. Check for missing occurrences (after history is shifted)
         get().checkRecurringTransactions();
+
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -405,6 +511,8 @@ export const useBudgetStore = create<BudgetState>()(
           if (payload.nextDueDate) payload.next_due_date = payload.nextDueDate;
           if (payload.endDate) payload.end_date = payload.endDate;
           if (payload.accountId) payload.account_id = payload.accountId;
+          if (payload.toAccountId) payload.to_account_id = payload.toAccountId;
+          if (payload.interval) payload.interval = payload.interval;
 
           await supabase.from('recurring_transactions').update(payload).eq('id', id);
         }
@@ -424,7 +532,6 @@ export const useBudgetStore = create<BudgetState>()(
       addAccount: async (account) => {
         set((state) => {
             const newState = { accounts: [...state.accounts, account] };
-            // If it's the first account, select it automatically
             if (newState.accounts.length === 1) {
                 return { ...newState, selectedAccountId: account.id };
             }
@@ -520,6 +627,52 @@ export const useBudgetStore = create<BudgetState>()(
         }
       },
 
+      // --- Savings Goals Actions ---
+      addSavingsGoal: async (goal) => {
+        set((state) => ({ savingsGoals: [...state.savingsGoals, goal] }));
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('savings_goals').insert({
+              id: goal.id,
+              user_id: user.id,
+              name: goal.name,
+              target_amount: goal.targetAmount,
+              current_amount: goal.currentAmount,
+              deadline: goal.deadline,
+              color: goal.color
+          });
+        }
+      },
+
+      updateSavingsGoal: async (id, updated) => {
+        set((state) => ({
+          savingsGoals: state.savingsGoals.map((g) =>
+            g.id === id ? { ...g, ...updated } : g
+          ),
+        }));
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+             const payload: any = { ...updated };
+             if (payload.targetAmount) payload.target_amount = payload.targetAmount;
+             if (payload.currentAmount) payload.current_amount = payload.currentAmount;
+             
+             await supabase.from('savings_goals').update(payload).eq('id', id);
+        }
+      },
+
+      deleteSavingsGoal: async (id) => {
+        set((state) => ({
+          savingsGoals: state.savingsGoals.filter((g) => g.id !== id),
+        }));
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('savings_goals').delete().eq('id', id);
+        }
+      },
+
 
       setSelectedAccount: (id: string) => set({ selectedAccountId: id }),
 
@@ -529,6 +682,7 @@ export const useBudgetStore = create<BudgetState>()(
           recurringTransactions: data.recurringTransactions || [],
           accountGroups: data.accountGroups || [],
           accounts: data.accounts || [],
+          savingsGoals: data.savingsGoals || [],
         })),
 
       setResetDay: (day) => set({ resetDay: day }),
@@ -563,14 +717,12 @@ export const useBudgetStore = create<BudgetState>()(
           linkedTransactionId: expenseId
         };
 
-        // We reuse the single-add actions but they are async now.
-        // Calling get().addTransaction(...) directly.
         get().addTransaction(expenseTx);
         get().addTransaction(incomeTx);
       },
 
       checkRecurringTransactions: () => {
-        const { recurringTransactions, addTransaction, updateRecurringTransaction, addTransfer } = get();
+        const { recurringTransactions, updateRecurringTransaction, addTransfer } = get();
         const today = new Date();
 
         recurringTransactions.forEach((rt) => {
@@ -587,18 +739,18 @@ export const useBudgetStore = create<BudgetState>()(
               break;
             }
 
-            const currentDateStr = nextDue.toISOString().split('T')[0];
+            const year = nextDue.getFullYear();
+            const month = String(nextDue.getMonth() + 1).padStart(2, '0');
+            const day = String(nextDue.getDate()).padStart(2, '0');
+            const currentDateStr = `${year}-${month}-${day}`;
 
             if (rt.isTransfer && rt.toAccountId) {
-                // Check if a transfer (Expense side) already exists
                 const duplicate = transactions.find(t => 
-                    // 1. Strict match by Recurring ID
                     (t.recurringId === rt.id && t.date.startsWith(currentDateStr)) ||
-                    // 2. Loose match for legacy transfers (ignoring isTransfer flag for robustness)
                     (t.amount === rt.amount && 
                      t.accountId === rt.accountId &&
                      t.date.startsWith(currentDateStr) &&
-                     t.type === 'expense') // Expense side of the transfer
+                     t.type === 'expense')
                 );
 
                 if (!duplicate) {
@@ -611,12 +763,8 @@ export const useBudgetStore = create<BudgetState>()(
                   );
                 }
             } else {
-              // Check if transaction already exists for this recurring ID and date
               const duplicate = transactions.find(t => 
-                 // 1. Strict match by Recurring ID
                  (t.recurringId === rt.id && t.date.startsWith(currentDateStr)) ||
-                 // 2. Loose match for legacy data (ignoring isRecurring for robustness)
-                 // e.g. user manually added it or old version created it without flags
                  (t.amount === rt.amount && 
                   t.accountId === rt.accountId &&
                   t.type === rt.type &&
@@ -625,7 +773,7 @@ export const useBudgetStore = create<BudgetState>()(
               );
 
               if (!duplicate) {
-                  addTransaction({
+                  get().addTransaction({
                     id: crypto.randomUUID(),
                     amount: rt.amount,
                     description: rt.description,
@@ -638,18 +786,23 @@ export const useBudgetStore = create<BudgetState>()(
               }
             }
 
-            if (rt.frequency === 'daily') nextDue.setDate(nextDue.getDate() + 1);
-            if (rt.frequency === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
-            if (rt.frequency === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
-            if (rt.frequency === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1);
+
+
+            const interval = rt.interval || 1;
+
+            if (rt.frequency === 'daily') nextDue.setDate(nextDue.getDate() + 1 * interval);
+            if (rt.frequency === 'weekly') nextDue.setDate(nextDue.getDate() + 7 * interval);
+            if (rt.frequency === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1 * interval);
+            if (rt.frequency === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1 * interval);
 
             updated = true;
           }
 
           if (updated) {
             updateRecurringTransaction(rt.id, {
-              nextDueDate: nextDue.toISOString().split('T')[0],
-              active: endDate ? nextDue <= endDate : true
+              nextDueDate: `${nextDue.getFullYear()}-${String(nextDue.getMonth() + 1).padStart(2, '0')}-${String(nextDue.getDate()).padStart(2, '0')}`,
+              active: endDate ? nextDue <= endDate : true,
+              interval: rt.interval // Ensure interval is preserved in update if needed (though partial update usually doesn't need it unless it changed)
             });
           }
         });
@@ -673,6 +826,7 @@ export const useBudgetStore = create<BudgetState>()(
         accounts: state.accounts,
         selectedAccountId: state.selectedAccountId,
         accountGroups: state.accountGroups,
+        savingsGoals: state.savingsGoals,
       }),
     }
   )

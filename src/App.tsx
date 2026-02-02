@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from '@/layouts/MainLayout';
 import { Dashboard } from '@/pages/Dashboard';
 import { Transactions } from '@/pages/Transactions';
+import { CalendarView } from '@/pages/CalendarView';
 import { Forecast } from '@/pages/Forecast';
 import { Settings } from '@/pages/Settings';
 import { Login } from '@/pages/Login';
@@ -34,6 +35,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/transactions" element={<Transactions />} />
+                  <Route path="/calendar" element={<CalendarView />} />
                   <Route path="/forecast" element={<Forecast />} />
                   <Route path="/settings" element={<Settings />} />
                 </Routes>

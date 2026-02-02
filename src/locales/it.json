@@ -9,6 +9,9 @@
     "forecast": "Previsioni",
     "settings": "Impostazioni"
   },
+  "calendar": {
+    "today": "Oggi"
+  },
   "forecast": {
     "title": "Previsioni Finanziarie",
     "subtitle": "Proiezione del saldo per i prossimi 6 mesi.",

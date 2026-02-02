@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { SavingsGoals } from '@/components/SavingsGoals';
 import { useBudgetStore } from '@/stores/useBudgetStore';
 import { TrendingUp, TrendingDown, DollarSign, Wallet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -156,6 +157,8 @@ export const Dashboard = () => {
                     </CardContent>
                 </Card>
             </div>
+
+            <SavingsGoals />
 
             <div className="grid gap-4 grid-cols-1">
                 {/* Trend Area Chart */}

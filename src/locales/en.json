@@ -9,6 +9,9 @@
     "forecast": "Forecast",
     "settings": "Settings"
   },
+  "calendar": {
+    "today": "Today"
+  },
   "forecast": {
     "title": "Financial Forecast",
     "subtitle": "Balance projection for the next 6 months.",

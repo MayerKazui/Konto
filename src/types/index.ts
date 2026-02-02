@@ -42,4 +42,14 @@ export interface RecurringTransaction {
   endDate?: string;
   active: boolean;
   isTransfer?: boolean;
+  interval?: number; // Custom interval (every X weeks/months)
+}
+
+export interface SavingsGoal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  deadline?: string; // ISO Date
+  color: string;
 }

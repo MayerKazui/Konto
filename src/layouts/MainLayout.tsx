@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Receipt, TrendingUp, Settings } from 'lucide-react';
+import { LayoutDashboard, Receipt, TrendingUp, Settings, Calendar } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { clsx } from 'clsx'; // Assuming clsx is installed since we used it in UI components, otherwise template literal
 
@@ -25,6 +25,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
     const navItems = [
         { icon: LayoutDashboard, label: t('nav.dashboard'), href: '/' },
         { icon: Receipt, label: t('nav.transactions'), href: '/transactions' },
+        { icon: Calendar, label: 'Calendrier', href: '/calendar' },
         { icon: TrendingUp, label: t('nav.forecast'), href: '/forecast' },
         { icon: Settings, label: t('nav.settings'), href: '/settings' },
     ];
@@ -58,8 +59,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                     ))}
                 </nav>
                 <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-                    <p className="text-xs text-center text-slate-400 dark:text-slate-500 font-mono">
-                        v1.2.2 (Nettoyage & Fix Defaults)
+                    <p className="text-xs text-center text-slate-500 dark:text-slate-400">
+                        v1.4.0 (Forecast Range & Custom Recurrence)
                     </p>
                 </div>
             </aside>

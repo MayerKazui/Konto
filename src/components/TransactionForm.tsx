@@ -39,6 +39,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
     // Recurring state
     const [isRecurring, setIsRecurring] = useState(false);
     const [frequency, setFrequency] = useState<Frequency>('monthly');
+    const [interval, setInterval] = useState(1);
     const [endDateType, setEndDateType] = useState<'date' | 'occurrences' | null>(null);
     const [endDate, setEndDate] = useState('');
     const [occurrences, setOccurrences] = useState('');
@@ -51,17 +52,12 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
 
             if ('isTransfer' in initialData && initialData.isTransfer) {
                 setType('transfer');
-                // For existing transfers, we might need logic to find the linked account.
-                // But generally editing transfers is complex because they are two transactions.
-                // For now, let's assume editing limits.
                 if ('toAccountId' in initialData && initialData.toAccountId) {
                     setToAccountId(initialData.toAccountId);
                 }
             } else {
                 setType(initialData.type);
             }
-
-
 
             if ('date' in initialData) {
                 // Standard Transaction
@@ -71,6 +67,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 // Recurring Transaction
                 setIsRecurring(true);
                 setFrequency(initialData.frequency);
+                setInterval(initialData.interval || 1);
                 setDate(initialData.startDate || initialData.nextDueDate);
 
                 if (initialData.endDate) {
@@ -83,12 +80,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
         }
     }, [initialData, selectedAccountId, accounts, type]);
 
-    // Auto-select account for new transactions if list loads/changes and no account checked
-    useEffect(() => {
-        if (!initialData && !accountId && accounts.length > 0) {
-            setAccountId(selectedAccountId || accounts[0].id);
-        }
-    }, [accounts, selectedAccountId, initialData, accountId]);
+    // ... (rest of simple effects)
 
     // Versioning Modal State
     const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
@@ -116,7 +108,9 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
             const sensitiveChanged =
                 currentAmount !== initialData.amount ||
                 frequency !== initialData.frequency ||
-                accountId !== initialData.accountId;
+                interval !== (initialData.interval || 1) ||
+                accountId !== initialData.accountId ||
+                date !== initialData.startDate;
 
             if (sensitiveChanged) {
                 setIsVersionModalOpen(true);
@@ -139,10 +133,12 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 const num = parseInt(occurrences);
                 if (!isNaN(num) && num > 0) {
                     const start = new Date(date);
-                    if (frequency === 'daily') start.setDate(start.getDate() + (num - 1));
-                    if (frequency === 'weekly') start.setDate(start.getDate() + (num - 1) * 7);
-                    if (frequency === 'monthly') start.setMonth(start.getMonth() + (num - 1));
-                    if (frequency === 'yearly') start.setFullYear(start.getFullYear() + (num - 1));
+                    // Calculate end date based on interval * frequency
+                    const effectiveInterval = interval || 1;
+                    if (frequency === 'daily') start.setDate(start.getDate() + (num - 1) * effectiveInterval);
+                    if (frequency === 'weekly') start.setDate(start.getDate() + (num - 1) * 7 * effectiveInterval);
+                    if (frequency === 'monthly') start.setMonth(start.getMonth() + (num - 1) * effectiveInterval);
+                    if (frequency === 'yearly') start.setFullYear(start.getFullYear() + (num - 1) * effectiveInterval);
                     finalEndDate = start.toISOString().split('T')[0];
                 }
             }
@@ -153,6 +149,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 type: type === 'transfer' ? 'expense' : type as TransactionType,
                 accountId,
                 frequency,
+                interval,
                 startDate: date,
                 nextDueDate: date,
                 endDate: finalEndDate,
@@ -164,14 +161,13 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
             if (initialData && 'frequency' in initialData) {
                 // Editing existing
                 if (versionMode === 'future') {
-                    // 1. End the old rule yesterday
+                    // end old rule
                     const yesterday = new Date(date);
                     yesterday.setDate(yesterday.getDate() - 1);
                     const yesterdayStr = yesterday.toISOString().split('T')[0];
-
                     updateRecurringTransaction(initialData.id, { endDate: yesterdayStr });
 
-                    // 2. Create new rule starting today
+                    // create new rule
                     addRecurringTransaction({
                         id: crypto.randomUUID(),
                         ...recurringData,
@@ -180,17 +176,13 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                     });
 
                 } else {
-                    // Update all (in place)
-                    // Only reset nextDueDate if the user explicitly changed the Start Date
                     const isStartDateChanged = date !== initialData.startDate;
-
                     updateRecurringTransaction(initialData.id, {
                         ...recurringData,
                         nextDueDate: isStartDateChanged ? date : initialData.nextDueDate
                     });
                 }
             } else {
-                // Creating new
                 addRecurringTransaction({
                     id: crypto.randomUUID(),
                     ...recurringData,
@@ -198,7 +190,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 });
             }
         } else {
-            // Standard transaction or Transfer
+            // Standard transaction logic...
             if (type === 'transfer') {
                 addTransfer(accountId, toAccountId, parseFloat(amount), date, description);
             } else {
@@ -228,12 +220,14 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
         setAmount('');
         setDescription('');
         setIsRecurring(false);
+        setInterval(1); // Reset interval
         setIsVersionModalOpen(false);
         if (onClose) onClose();
     }
 
     return (
         <Card className="w-full max-w-md mx-auto">
+            {/* ... Header ... */}
             <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle>{initialData ? t('form.editTitle') : t('form.addTitle')}</CardTitle>
                 {onClose && (
@@ -243,21 +237,17 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 )}
             </CardHeader>
             <CardContent>
+                {/* ... Modal ... */}
                 <Modal
                     isOpen={isVersionModalOpen}
                     onClose={() => setIsVersionModalOpen(false)}
                     title={(t('settings.editRecurringTitle') || "Modifier la récurrence") as string}
                     footer={
                         <>
-                            <Button
-                                variant="secondary"
-                                onClick={() => executeSubmit('future')}
-                            >
+                            <Button variant="secondary" onClick={() => executeSubmit('future')}>
                                 {(t('settings.editRecurringFuture') || "Futures seulement") as string}
                             </Button>
-                            <Button
-                                onClick={() => executeSubmit('all')}
-                            >
+                            <Button onClick={() => executeSubmit('all')}>
                                 {(t('settings.editRecurringAll') || "Historique complet") as string}
                             </Button>
                         </>
@@ -269,12 +259,16 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 </Modal>
 
                 <form onSubmit={handleFormSubmit} className="space-y-4">
+                    {/* ... Error ... */}
                     {error && (
                         <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
                             {error}
                         </div>
                     )}
+
+                    {/* ... Type Buttons ... */}
                     <div className="flex gap-2">
+                        {/* ... (Existing buttons code) ... */}
                         <Button
                             type="button"
                             variant={type === 'expense' ? 'danger' : 'secondary'}
@@ -293,7 +287,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                         </Button>
                         <Button
                             type="button"
-                            variant={type === 'transfer' ? 'primary' : 'secondary'} // Use primary or a distinct color
+                            variant={type === 'transfer' ? 'primary' : 'secondary'}
                             className={`flex-1 ${type === 'transfer' ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
                             onClick={() => setType('transfer')}
                         >
@@ -301,7 +295,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                         </Button>
                     </div>
 
-                    {/* Source Account */}
+                    {/* Source & Destination Accounts */}
                     <div>
                         <AccountSelector
                             value={accountId}
@@ -309,8 +303,6 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                             label={type === 'transfer' ? (t('form.transferSource') || "Compte Source") : t('form.account')}
                         />
                     </div>
-
-                    {/* Destination Account (Transfer Only) */}
                     {type === 'transfer' && (
                         <div>
                             <AccountSelector
@@ -321,8 +313,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                         </div>
                     )}
 
-
-
+                    {/* Amount */}
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                             {t('form.amount')}
@@ -338,6 +329,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                         />
                     </div>
 
+                    {/* Date */}
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                             {t('form.date')}
@@ -351,6 +343,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                         />
                     </div>
 
+                    {/* Description */}
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                             {t('form.description')}
@@ -364,13 +357,14 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                         />
                     </div>
 
+                    {/* Recurring Checkbox */}
                     <div className="flex items-center space-x-2">
                         <input
                             type="checkbox"
                             id="isRecurring"
                             checked={isRecurring}
                             onChange={(e) => setIsRecurring(e.target.checked)}
-                            disabled={!!initialData} // Disable changing recurrence type during edit to simplify logic
+                            disabled={!!initialData}
                             className="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer disabled:opacity-50"
                         />
                         <label htmlFor="isRecurring" className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -378,22 +372,40 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                         </label>
                     </div>
 
+                    {/* Recurring Options */}
                     {isRecurring && (
                         <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                                    {t('form.frequency') as string}
-                                </label>
-                                <select
-                                    value={frequency}
-                                    onChange={(e) => setFrequency(e.target.value as Frequency)}
-                                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
-                                >
-                                    <option value="monthly">{t('form.frequencies.monthly') as string}</option>
-                                    <option value="weekly">{t('form.frequencies.weekly') as string}</option>
-                                    <option value="daily">{t('form.frequencies.daily') as string}</option>
-                                    <option value="yearly">{t('form.frequencies.yearly') as string}</option>
-                                </select>
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                        {t('form.frequency') as string}
+                                    </label>
+                                    <select
+                                        value={frequency}
+                                        onChange={(e) => setFrequency(e.target.value as Frequency)}
+                                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                                    >
+                                        <option value="monthly">{t('form.frequencies.monthly') as string}</option>
+                                        <option value="weekly">{t('form.frequencies.weekly') as string}</option>
+                                        <option value="daily">{t('form.frequencies.daily') as string}</option>
+                                        <option value="yearly">{t('form.frequencies.yearly') as string}</option>
+                                    </select>
+                                </div>
+                                <div className="w-32">
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                        Intervalle
+                                    </label>
+                                    <div className="flex items-center">
+                                        <span className="text-sm text-slate-500 mr-2">Tous les</span>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={interval}
+                                            onChange={(e) => setInterval(Math.max(1, parseInt(e.target.value) || 1))}
+                                            className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Recurrence Duration */}
