@@ -112,9 +112,9 @@ export const useBudgetStore = create<BudgetState>()(
         }
 
         // Fetch Recurring
-        const { data: recurring } = await supabase.from('recurring_transactions').select('*');
-        if (recurring) {
-          const formattedRecurring = recurring.map(r => ({
+        const { data: recurringData } = await supabase.from('recurring_transactions').select('*');
+        if (recurringData) {
+          const formattedRecurring = recurringData.map(r => ({
             id: r.id,
             amount: r.amount,
             type: r.type,
@@ -336,7 +336,7 @@ export const useBudgetStore = create<BudgetState>()(
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const payload: any = { ...updated };
+          const payload: Record<string, unknown> = { ...updated };
           if (updated.accountId) payload.account_id = updated.accountId;
           if (updated.isRecurring) payload.is_recurring = updated.isRecurring;
           if (updated.recurringId) payload.recurring_id = updated.recurringId;
@@ -424,7 +424,7 @@ export const useBudgetStore = create<BudgetState>()(
         // We do this BEFORE updating the rule and running checkRecurringTransactions
         // to ensure the transactions are already at their new dates/values so checkRecurring doesn't create duplicates.
         if (oldRT) {
-            const propUpdates: any = {};
+            const propUpdates: Record<string, unknown> = {};
             let shouldPropagate = false;
             let daysDiff = 0;
 
@@ -455,7 +455,7 @@ export const useBudgetStore = create<BudgetState>()(
                 if (affectedChildren.length > 0) {
                     const updatedTransactions = currentTransactions.map(t => {
                         if (t.recurringId === id) {
-                            const txUpdate: any = { ...propUpdates };
+                            const txUpdate: Record<string, unknown> = { ...propUpdates };
                             
                             // Apply date shift
                             if (daysDiff !== 0) {
@@ -506,13 +506,15 @@ export const useBudgetStore = create<BudgetState>()(
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const payload: any = { ...updated };
+          const payload: Record<string, unknown> = { ...updated };
           if (payload.startDate) payload.start_date = payload.startDate;
           if (payload.nextDueDate) payload.next_due_date = payload.nextDueDate;
           if (payload.endDate) payload.end_date = payload.endDate;
           if (payload.accountId) payload.account_id = payload.accountId;
           if (payload.toAccountId) payload.to_account_id = payload.toAccountId;
-          if (payload.interval) payload.interval = payload.interval;
+          if (payload.interval) {
+              // Interval matches column name, nothing to map
+          }
 
           await supabase.from('recurring_transactions').update(payload).eq('id', id);
         }
@@ -562,7 +564,7 @@ export const useBudgetStore = create<BudgetState>()(
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const payload: any = { ...updated };
+          const payload: Record<string, unknown> = { ...updated };
           if (payload.includeInTotal !== undefined) payload.include_in_total = payload.includeInTotal;
           await supabase.from('accounts').update(payload).eq('id', id);
         }
@@ -610,7 +612,7 @@ export const useBudgetStore = create<BudgetState>()(
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const payload: any = { ...updated };
+          const payload: Record<string, unknown> = { ...updated };
           if (payload.accountIds) payload.account_ids = payload.accountIds;
           await supabase.from('account_groups').update(payload).eq('id', id);
         }
@@ -654,7 +656,7 @@ export const useBudgetStore = create<BudgetState>()(
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-             const payload: any = { ...updated };
+             const payload: Record<string, unknown> = { ...updated };
              if (payload.targetAmount) payload.target_amount = payload.targetAmount;
              if (payload.currentAmount) payload.current_amount = payload.currentAmount;
              

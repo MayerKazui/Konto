@@ -13,6 +13,7 @@ import {
     isToday
 } from 'date-fns';
 import { fr, enUS, es, it, de } from 'date-fns/locale';
+import type { Locale } from 'date-fns';
 import { ChevronLeft, ChevronRight, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 export const CalendarView = () => {
     const { t, i18n } = useTranslation();
 
-    const locales: Record<string, any> = {
+    const locales: Record<string, Locale> = {
         fr,
         en: enUS,
         es,

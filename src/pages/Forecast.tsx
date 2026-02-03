@@ -5,6 +5,7 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useTranslation } from 'react-i18next';
 import { fr, enUS, es, it, de } from 'date-fns/locale';
+import type { Locale } from 'date-fns';
 
 export const Forecast = () => {
     const { t, i18n } = useTranslation();
@@ -12,7 +13,7 @@ export const Forecast = () => {
 
     const [forecastRange, setForecastRange] = useState(6);
 
-    const locales: Record<string, any> = {
+    const locales: Record<string, Locale> = {
         fr,
         en: enUS,
         es,
@@ -75,7 +76,9 @@ export const Forecast = () => {
             });
 
             data.push({
-                date: format(date, 'MMM d', { locale: currentLocale }),
+                fullDate: date.getTime(), // Unique key
+                displayDate: format(date, forecastRange > 12 ? 'MMM yyyy' : 'MMM d', { locale: currentLocale }), // Smart display
+                tooltipDate: format(date, 'd MMMM yyyy', { locale: currentLocale }), // Full tooltip date
                 balance: currentBalance,
                 originalDate: date // Keep original date for sorting/debugging if needed
             });
@@ -125,7 +128,14 @@ export const Forecast = () => {
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                 <XAxis
-                                    dataKey="date"
+                                    dataKey="fullDate"
+                                    tickFormatter={(val) => {
+                                        // Find the corresponding data point to get the display formatted string
+                                        // Or just re-format on the fly if we want, but using the pre-calculated one is safer if mapped correctly.
+                                        // However, XAxis 'formatter' receives the value of dataKey. Here it is timestamp.
+                                        // We can format it back to date.
+                                        return format(new Date(val), forecastRange > 12 ? 'MMM yyyy' : 'MMM d', { locale: currentLocale });
+                                    }}
                                     tickLine={false}
                                     axisLine={false}
                                     tick={{ fontSize: 12, fill: '#64748b' }}
@@ -139,6 +149,7 @@ export const Forecast = () => {
                                 />
                                 <Tooltip
                                     formatter={(value: number | undefined) => [`${(value || 0).toFixed(2)} €`, t('transactions.currentBalance') as string]}
+                                    labelFormatter={(label) => format(new Date(label), 'd MMMM yyyy', { locale: currentLocale })}
                                     labelStyle={{ color: '#1e293b' }}
                                     contentStyle={{
                                         borderRadius: '8px',

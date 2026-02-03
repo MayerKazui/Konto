@@ -78,7 +78,8 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 }
             }
         }
-    }, [initialData, selectedAccountId, accounts, type]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialData]);
 
     // ... (rest of simple effects)
 
