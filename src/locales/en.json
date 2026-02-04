@@ -35,7 +35,10 @@
     "expenseBreakdown": "Expenses Breakdown",
     "balanceTrend": "Balance Trend",
     "noData": "No data",
-    "balance": "Balance"
+    "balance": "Balance",
+    "safeToSpend": "Safe to Spend (Forecast)",
+    "safeToSpendDesc": "Projected month-end balance.",
+    "upcomingBills": "Upcoming Bills"
   },
   "transactions": {
     "title": "Transactions",
@@ -75,7 +78,8 @@
     "save": "Update",
     "account": "Account",
     "selectAccount": "Select an account",
-    "noAccounts": "No accounts found. Please create one first."
+    "noAccounts": "No accounts found. Please create one first.",
+    "category": "Category"
   },
   "toast": {
     "syncSuccess": "Data synced successfully.",
@@ -134,5 +138,20 @@
     "editRecurringMessage": "You are modifying an existing recurring rule. How do you want to apply these changes?",
     "editRecurringFuture": "Future only",
     "editRecurringAll": "Full history"
+  },
+  "categories": {
+    "housing": "Housing",
+    "food": "Food",
+    "transport": "Transport",
+    "utilities": "Utilities",
+    "insurance": "Insurance",
+    "healthcare": "Healthcare",
+    "savings": "Savings",
+    "personal": "Personal",
+    "entertainment": "Entertainment",
+    "education": "Education",
+    "income": "Income",
+    "transfer": "Transfer",
+    "other": "Other"
   }
 }

@@ -231,7 +231,7 @@ export const Dashboard = () => {
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
                             <Wallet className="h-4 w-4" />
-                            {(t('dashboard.safeToSpend') || "Reste à Vivre (Prévision)")}
+                            {t('dashboard.safeToSpend')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -239,7 +239,7 @@ export const Dashboard = () => {
                             {safeToSpend.toFixed(2)} €
                         </div>
                         <p className="text-xs text-slate-500 mt-1">
-                            {t('dashboard.safeToSpendDesc') || "Solde à la fin du mois si tout est payé."}
+                            {t('dashboard.safeToSpendDesc')}
                         </p>
                     </CardContent>
                 </Card>
@@ -249,7 +249,7 @@ export const Dashboard = () => {
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
-                            {(t('dashboard.upcomingBills') || "Prochaines Factures")}
+                            {t('dashboard.upcomingBills')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>

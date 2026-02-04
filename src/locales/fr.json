@@ -35,7 +35,10 @@
     "expenseBreakdown": "Répartition des Dépenses",
     "balanceTrend": "Évolution du Solde",
     "noData": "Pas de données",
-    "balance": "Solde"
+    "balance": "Solde",
+    "safeToSpend": "Reste à Vivre (Prévision)",
+    "safeToSpendDesc": "Solde à la fin du mois si tout est payé.",
+    "upcomingBills": "Prochaines Factures"
   },
   "transactions": {
     "title": "Transactions",
@@ -79,7 +82,8 @@
     "save": "Mettre à jour",
     "account": "Compte",
     "selectAccount": "Sélectionner un compte",
-    "noAccounts": "Aucun compte trouvé. Veuillez créer un compte d'abord."
+    "noAccounts": "Aucun compte trouvé. Veuillez créer un compte d'abord.",
+    "category": "Catégorie"
   },
   "toast": {
     "syncSuccess": "Données synchronisées avec succès.",
@@ -138,5 +142,20 @@
     "editRecurringMessage": "Vous modifiez une règle récurrente existante. Comment voulez-vous appliquer ces changements ?",
     "editRecurringFuture": "Futures seulement",
     "editRecurringAll": "Historique complet"
+  },
+  "categories": {
+    "housing": "Logement",
+    "food": "Alimentation",
+    "transport": "Transport",
+    "utilities": "Factures",
+    "insurance": "Assurance",
+    "healthcare": "Santé",
+    "savings": "Épargne",
+    "personal": "Personnel",
+    "entertainment": "Loisirs",
+    "education": "Éducation",
+    "income": "Revenu",
+    "transfer": "Virement",
+    "other": "Autre"
   }
 }

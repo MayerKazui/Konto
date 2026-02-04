@@ -321,7 +321,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                             <AccountSelector
                                 value={toAccountId}
                                 onChange={setToAccountId}
-                                label={t('form.transferDestination') || "Vers le compte"}
+                                label={t('form.transferDestination')}
                             />
                         </div>
                     )}
@@ -332,7 +332,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                     {type !== 'transfer' && (
                         <div>
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                {t('form.category') || "Catégorie"}
+                                {t('form.category')}
                             </label>
                             <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                                 {CATEGORIES.map((cat) => (
@@ -344,11 +344,11 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                                             ? 'bg-indigo-100 dark:bg-indigo-900/50 border-2 border-indigo-500 ring-1 ring-indigo-500'
                                             : 'bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                                             }`}
-                                        title={cat.label}
+                                        title={t(`categories.${cat.id}`)}
                                     >
                                         <span className="text-xl mb-1">{cat.icon}</span>
                                         <span className="text-[10px] truncate w-full text-center text-slate-600 dark:text-slate-400">
-                                            {cat.label}
+                                            {t(`categories.${cat.id}`)}
                                         </span>
                                     </button>
                                 ))}

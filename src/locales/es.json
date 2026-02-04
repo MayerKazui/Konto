@@ -28,7 +28,10 @@
     "noIncome": "Sin ingresos registrados",
     "noExpense": "Sin gastos registrados",
     "comingSoon": "Próximamente",
-    "vsLastMonth": "vs mes anterior"
+    "vsLastMonth": "vs mes anterior",
+    "safeToSpend": "Seguro para gastar (Previsión)",
+    "safeToSpendDesc": "Saldo proyectado al final del mes.",
+    "upcomingBills": "Próximas Facturas"
   },
   "transactions": {
     "title": "Transacciones",
@@ -68,7 +71,8 @@
     "save": "Actualizar",
     "account": "Cuenta",
     "selectAccount": "Seleccionar cuenta",
-    "noAccounts": "No se encontraron cuentas. Por favor, cree una primero."
+    "noAccounts": "No se encontraron cuentas. Por favor, cree una primero.",
+    "category": "Categoría"
   },
   "toast": {
     "syncSuccess": "Datos sincronizados con éxito.",
@@ -122,5 +126,20 @@
     "editRecurringMessage": "Está modificando una regla recurrente existente. ¿Cómo desa aplicar estos cambios?",
     "editRecurringFuture": "Solo futuras",
     "editRecurringAll": "Historial completo"
+  },
+  "categories": {
+    "housing": "Vivienda",
+    "food": "Alimentación",
+    "transport": "Transporte",
+    "utilities": "Servicios",
+    "insurance": "Seguro",
+    "healthcare": "Salud",
+    "savings": "Ahorros",
+    "personal": "Personal",
+    "entertainment": "Entretenimiento",
+    "education": "Educación",
+    "income": "Ingresos",
+    "transfer": "Transferencia",
+    "other": "Otro"
   }
 }
