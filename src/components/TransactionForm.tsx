@@ -8,6 +8,7 @@ import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { AccountSelector } from './AccountSelector';
 import type { Frequency } from '@/types';
+import { CATEGORIES, type CategoryId } from '@/types/categories';
 
 interface TransactionFormProps {
     onClose?: () => void;
@@ -34,6 +35,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
     const [description, setDescription] = useState('');
     const [type, setType] = useState<TransactionType | 'transfer'>('expense');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [categoryId, setCategoryId] = useState<CategoryId>('other');
 
 
     // Recurring state
@@ -57,6 +59,12 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 }
             } else {
                 setType(initialData.type);
+            }
+
+            if (initialData.categoryId) {
+                setCategoryId(initialData.categoryId as CategoryId);
+            } else {
+                setCategoryId('other'); // Default or try to infer?
             }
 
             if ('date' in initialData) {
@@ -111,7 +119,8 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 frequency !== initialData.frequency ||
                 interval !== (initialData.interval || 1) ||
                 accountId !== initialData.accountId ||
-                date !== initialData.startDate;
+                date !== initialData.startDate ||
+                categoryId !== initialData.categoryId;
 
             if (sensitiveChanged) {
                 setIsVersionModalOpen(true);
@@ -156,7 +165,8 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                 endDate: finalEndDate,
                 active: true,
                 isTransfer: type === 'transfer',
-                toAccountId: type === 'transfer' ? toAccountId : undefined
+                toAccountId: type === 'transfer' ? toAccountId : undefined,
+                categoryId
             };
 
             if (initialData && 'frequency' in initialData) {
@@ -202,6 +212,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                     accountId,
                     date,
                     isRecurring: false,
+                    categoryId
                 };
 
                 if (initialData && !('frequency' in initialData)) {
@@ -220,6 +231,7 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
     const closeForm = () => {
         setAmount('');
         setDescription('');
+        setCategoryId('other');
         setIsRecurring(false);
         setInterval(1); // Reset interval
         setIsVersionModalOpen(false);
@@ -311,6 +323,36 @@ export const TransactionForm = ({ onClose, initialData }: TransactionFormProps) 
                                 onChange={setToAccountId}
                                 label={t('form.transferDestination') || "Vers le compte"}
                             />
+                        </div>
+                    )}
+
+
+
+                    {/* Category Selector */}
+                    {type !== 'transfer' && (
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                {t('form.category') || "Catégorie"}
+                            </label>
+                            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                                {CATEGORIES.map((cat) => (
+                                    <button
+                                        key={cat.id}
+                                        type="button"
+                                        onClick={() => setCategoryId(cat.id)}
+                                        className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all ${categoryId === cat.id
+                                            ? 'bg-indigo-100 dark:bg-indigo-900/50 border-2 border-indigo-500 ring-1 ring-indigo-500'
+                                            : 'bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+                                            }`}
+                                        title={cat.label}
+                                    >
+                                        <span className="text-xl mb-1">{cat.icon}</span>
+                                        <span className="text-[10px] truncate w-full text-center text-slate-600 dark:text-slate-400">
+                                            {cat.label}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     )}
 

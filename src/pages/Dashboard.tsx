@@ -1,7 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { SavingsGoals } from '@/components/SavingsGoals';
 import { useBudgetStore } from '@/stores/useBudgetStore';
-import { TrendingUp, TrendingDown, DollarSign, Wallet } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Wallet, Calendar, AlertCircle } from 'lucide-react';
+import { getCategory } from '@/types/categories';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
@@ -9,7 +12,7 @@ import { calculateTrendData } from '@/utils/chartUtils';
 
 export const Dashboard = () => {
     const { t, i18n } = useTranslation();
-    const { transactions, resetDay, currentViewDate, selectedAccountId, accountGroups } = useBudgetStore();
+    const { transactions, recurringTransactions, resetDay, currentViewDate, selectedAccountId, accountGroups } = useBudgetStore();
     const [viewMode, setViewMode] = useState<string>('current'); // 'current', 'all', or groupId
 
     // Calculate start and end of the current view month
@@ -81,6 +84,69 @@ export const Dashboard = () => {
     const trendData = useMemo(() => {
         return calculateTrendData(transactions, startDate, endDate, targetAccountIds, i18n.language);
     }, [transactions, startDate, endDate, targetAccountIds, i18n.language]);
+
+    // Calculate Safe to Spend (Projected End Balance)
+    const { safeToSpend, upcomingBills } = useMemo(() => {
+        const today = new Date();
+        // 1. Upcoming Incomes/Expenses in current period
+        let upcomingIncome = 0;
+        let upcomingExpense = 0;
+        const bills: any[] = [];
+
+        recurringTransactions.forEach(rt => {
+            if (!rt.active) return;
+            // Filter by account
+            let matchesAccount = true;
+            if (targetAccountIds) {
+                matchesAccount = targetAccountIds.includes(rt.accountId);
+            }
+            if (!matchesAccount) return;
+
+            // Check occurrences in this period (from NOW to EndDate)
+            const nextDue = new Date(rt.nextDueDate);
+            // reset time to 00:00 to compare dates properly
+            nextDue.setHours(0, 0, 0, 0);
+
+            const periodEnd = new Date(endDate);
+
+            // Clone nextDue to iterate
+            let currentDue = new Date(nextDue);
+
+            while (currentDue < periodEnd) {
+                if (currentDue >= today) { // Future only
+                    const amount = rt.amount;
+                    if (rt.type === 'income') upcomingIncome += amount;
+                    else upcomingExpense += amount;
+
+                    // Add to bills list if it's an expense
+                    if (rt.type === 'expense') {
+                        bills.push({
+                            ...rt,
+                            dueDate: new Date(currentDue),
+                            key: `${rt.id}-${currentDue.getTime()}`
+                        });
+                    }
+                }
+
+                // Increment
+                if (rt.frequency === 'daily') currentDue.setDate(currentDue.getDate() + (rt.interval || 1));
+                if (rt.frequency === 'weekly') currentDue.setDate(currentDue.getDate() + 7 * (rt.interval || 1));
+                if (rt.frequency === 'monthly') currentDue.setMonth(currentDue.getMonth() + (rt.interval || 1));
+                if (rt.frequency === 'yearly') currentDue.setFullYear(currentDue.getFullYear() + (rt.interval || 1));
+            }
+        });
+
+        const projectedBalance = balance + upcomingIncome - upcomingExpense;
+
+        // Sort bills by date
+        bills.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
+
+        return {
+            safeToSpend: projectedBalance,
+            upcomingBills: bills.slice(0, 3) // Top 3
+        };
+
+    }, [recurringTransactions, startDate, endDate, balance, targetAccountIds]);
 
     return (
         <div className="space-y-6">
@@ -154,6 +220,64 @@ export const Dashboard = () => {
                             {monthlySavings.toFixed(2)} €
                         </div>
                         <p className="text-xs text-slate-500">{t('dashboard.savingsSubtitle') as string}</p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Smart Simplicity Section */}
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+                {/* Safe To Spend Card */}
+                <Card className="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/30 dark:to-slate-900 border-indigo-100 dark:border-indigo-900">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                            <Wallet className="h-4 w-4" />
+                            {(t('dashboard.safeToSpend') || "Reste à Vivre (Prévision)")}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+                            {safeToSpend.toFixed(2)} €
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                            {t('dashboard.safeToSpendDesc') || "Solde à la fin du mois si tout est payé."}
+                        </p>
+                    </CardContent>
+                </Card>
+
+                {/* Upcoming Bills */}
+                <Card className="md:col-span-2">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            {(t('dashboard.upcomingBills') || "Prochaines Factures")}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                            {upcomingBills.length === 0 ? (
+                                <p className="text-sm text-slate-500">Aucune facture prévue d'ici la fin du mois.</p>
+                            ) : upcomingBills.map(bill => {
+                                const category = bill.categoryId ? getCategory(bill.categoryId) : null;
+                                return (
+                                    <div key={bill.key} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-1.5 rounded-full ${category ? category.color : 'bg-slate-200 dark:bg-slate-700'}`}>
+                                                {category ? <span className="text-lg leading-none flex items-center justify-center w-5 h-5">{category.icon}</span> : <AlertCircle size={16} className="text-slate-500" />}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm text-slate-900 dark:text-slate-100">{bill.description}</p>
+                                                <p className="text-xs text-slate-500">
+                                                    {format(bill.dueDate, 'dd MMMM', { locale: fr })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <span className="font-semibold text-red-600 dark:text-red-400 text-sm">
+                                            -{bill.amount.toFixed(2)} €
+                                        </span>
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </CardContent>
                 </Card>
             </div>

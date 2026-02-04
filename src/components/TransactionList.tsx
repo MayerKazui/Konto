@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import type { Transaction } from '@/types';
+import { getCategory } from '@/types/categories';
 import { useState, useMemo } from 'react';
 
 interface TransactionListProps {
@@ -134,6 +135,7 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
                     {t('transactions.emptyState') as string}
                 </div>
             ) : sortedTransactions.map((transaction) => {
+                const category = transaction.categoryId ? getCategory(transaction.categoryId) : null;
                 return (
                     <div
                         key={transaction.id}
@@ -144,10 +146,12 @@ export const TransactionList = ({ onEdit }: TransactionListProps = {}) => {
                     >
                         <div className="flex items-center space-x-4">
                             <div
-                                className={`p-2 rounded-full ${transaction.type === 'income' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                                className={`p-2 rounded-full ${category
+                                    ? category.color
+                                    : (transaction.type === 'income' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400')
                                     }`}
                             >
-                                {transaction.type === 'income' ? <ArrowUp size={20} /> : <ArrowDown size={20} />}
+                                {category ? <span className="text-xl leading-none flex items-center justify-center w-5 h-5">{category.icon}</span> : (transaction.type === 'income' ? <ArrowUp size={20} /> : <ArrowDown size={20} />)}
                             </div>
                             <div>
                                 <div className="font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">

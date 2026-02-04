@@ -20,6 +20,7 @@ export interface Transaction {
   date: string; // ISO String
   accountId: string;
   description: string;
+  categoryId?: string;
   isRecurring: boolean;
   recurringId?: string;
   isProjected?: boolean;
@@ -36,6 +37,7 @@ export interface RecurringTransaction {
   accountId: string;
   toAccountId?: string;
   description: string;
+  categoryId?: string;
   frequency: Frequency;
   startDate: string;
   nextDueDate: string;
