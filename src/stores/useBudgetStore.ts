@@ -107,7 +107,7 @@ export const useBudgetStore = create<BudgetState>()(
             recurringId: t.recurring_id,
             isTransfer: t.is_transfer,
             linkedTransactionId: t.linked_transaction_id,
-            categoryId: t.category_id // TODO: DB Migration needed
+            categoryId: t.category_id
           }));
           if (formattedTransactions.length > 0) set({ transactions: formattedTransactions });
         }
@@ -129,7 +129,7 @@ export const useBudgetStore = create<BudgetState>()(
             toAccountId: r.to_account_id,
             isTransfer: r.is_transfer,
             interval: r.interval,
-            categoryId: r.category_id // TODO: DB Migration needed
+            categoryId: r.category_id
           }));
           if (formattedRecurring.length > 0) set({ recurringTransactions: formattedRecurring });
         }
@@ -244,7 +244,7 @@ export const useBudgetStore = create<BudgetState>()(
           recurring_id: t.recurringId,
           is_transfer: t.isTransfer,
           linked_transaction_id: t.linkedTransactionId,
-          // category_id: t.categoryId 
+          category_id: t.categoryId 
         }));
         if (txPayloads.length > 0) await supabase.from('transactions').upsert(txPayloads);
 
@@ -264,7 +264,7 @@ export const useBudgetStore = create<BudgetState>()(
           active: r.active,
           is_transfer: r.isTransfer,
           interval: r.interval,
-          // category_id: r.categoryId
+          category_id: r.categoryId
         }));
         if (recPayloads.length > 0) await supabase.from('recurring_transactions').upsert(recPayloads);
 
@@ -315,7 +315,7 @@ export const useBudgetStore = create<BudgetState>()(
               recurring_id: transaction.recurringId,
               is_transfer: transaction.isTransfer,
               linked_transaction_id: transaction.linkedTransactionId,
-              // category_id: transaction.categoryId
+              category_id: transaction.categoryId
             });
             if (error) {
               console.error("Supabase Add Transaction Error:", error);
@@ -345,7 +345,7 @@ export const useBudgetStore = create<BudgetState>()(
           if (updated.accountId) payload.account_id = updated.accountId;
           if (updated.isRecurring) payload.is_recurring = updated.isRecurring;
           if (updated.recurringId) payload.recurring_id = updated.recurringId;
-          // if (updated.categoryId) payload.category_id = updated.categoryId;
+          if (updated.categoryId) payload.category_id = updated.categoryId;
 
           try {
             const { error } = await supabase.from('transactions').update(payload).eq('id', id);
@@ -418,7 +418,7 @@ export const useBudgetStore = create<BudgetState>()(
             active: transaction.active,
             is_transfer: transaction.isTransfer,
             interval: transaction.interval, // Add interval to payload
-            // category_id: transaction.categoryId
+            category_id: transaction.categoryId
           });
         }
       },
@@ -523,7 +523,7 @@ export const useBudgetStore = create<BudgetState>()(
           if (payload.interval) {
               // Interval matches column name, nothing to map
           }
-          // if (payload.categoryId) payload.category_id = payload.categoryId;
+          if (payload.categoryId) payload.category_id = payload.categoryId;
 
           await supabase.from('recurring_transactions').update(payload).eq('id', id);
         }
