@@ -60,7 +60,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                 </nav>
                 <div className="p-4 border-t border-slate-200 dark:border-slate-800">
                     <p className="text-xs text-center text-slate-500 dark:text-slate-400">
-                        &copy; 2024 BudgetApp. v1.4.2 (Code Cleanup & Fixes)
+                        &copy; 2026 BudgetApp. v1.5.0 (Smart Simplicity)
                     </p>
                 </div>
             </aside>
